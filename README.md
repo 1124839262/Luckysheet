@@ -11,10 +11,6 @@
 
 English| [简体中文](./README-zh.md)
 
-# Luckysheet is no longer maintained. It is recommended to use the upgraded version of [Univer](https://univer.short.gy/LuckysheetRepository) for production environment deployment. The new version solves problems such as large data loading, chart styles, pivot tables, formula calculations, etc., and has made many optimization designs, added import, export, printing, collaboration and other functions, improved table performance, and has a professional technical team to provide technical support.
-
-Follow the [#1454](https://github.com/dream-num/Luckysheet/issues/1454) issue for more details.
-
 ## Introduction
 🚀Luckysheet is an online spreadsheet like excel that is powerful, simple to configure, and completely open source.
 
