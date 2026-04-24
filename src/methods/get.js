@@ -3,7 +3,7 @@ import Store from '../store';
 
 function getSheetIndex(index) {
   for (let i = 0; i < Store.luckysheetfile.length; i++) {
-    if (Store.luckysheetfile[i]['index'] === index) {
+    if (String(Store.luckysheetfile[i]['index']) === String(index)) {
       return i;
     }
   }
@@ -43,7 +43,7 @@ function getRangetxt(sheetIndex, range, currentIndex) {
     return `${sheettxt + (row0 + 1)  }:${  row1 + 1}`;
   }
   else {
-    if (column0 === column1 && row0 === row1) { // Use strict equality for better performance
+    if (column0 === column1 && row0 === row1) {
       return sheettxt + chatatABC(column0) + (row0 + 1);
     }
     else {
