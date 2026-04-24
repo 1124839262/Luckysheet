@@ -1,18 +1,18 @@
-import { chart } from '../expendPlugins/chart/plugin'
-import { print } from '../expendPlugins/print/plugin'
-import { exportXlsx } from '../expendPlugins/exportXlsx/plugin'
+import {chart} from '../expendPlugins/chart/plugin';
+import {print} from '../expendPlugins/print/plugin';
+import {exportXlsx} from '../expendPlugins/exportXlsx/plugin';
 
 const pluginsObj = {
-    'chart':chart,
-    'print':print,
-    'exportXlsx':exportXlsx
-}
+  'chart':chart,
+  'print':print,
+  'exportXlsx':exportXlsx
+};
 
-const isDemo = true
+const isDemo = true;
 
 /**
  * Register plugins
- * 
+ *
  * plugins:[
  * {name:'chart'},
  * {name:'print'},
@@ -20,13 +20,13 @@ const isDemo = true
  * ]
  */
 function initPlugins(plugins , options){
-    if(plugins.length){
-        plugins.forEach(plugin => {
-            pluginsObj[plugin.name](options, plugin.config, isDemo)
-        });
-    }
+  if(plugins.length){
+    plugins.forEach(plugin => {
+      pluginsObj[plugin.name](options, plugin.config, isDemo);
+    });
+  }
 }
 
 export {
-    initPlugins
-}
+  initPlugins
+};

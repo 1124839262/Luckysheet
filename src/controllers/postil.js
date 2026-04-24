@@ -1,11 +1,10 @@
-import { rowLocation, colLocation, mouseposition } from '../global/location';
+import {colLocation, mouseposition, rowLocation} from '../global/location';
 import editor from '../global/editor';
-import formula from '../global/formula';
-import { luckysheetRangeLast } from '../global/cursorPos';
-import { luckysheetrefreshgrid } from '../global/refresh';
-import { setluckysheet_scroll_status } from '../methods/set';
-import { getSheetIndex } from '../methods/get';
-import { getObjType } from '../utils/util';
+import {luckysheetRangeLast} from '../global/cursorPos';
+import {luckysheetrefreshgrid} from '../global/refresh';
+import {setluckysheet_scroll_status} from '../methods/set';
+import {getSheetIndex} from '../methods/get';
+import {getObjType} from '../utils/util';
 import luckysheetFreezen from './freezen';
 import menuButton from './menuButton';
 import {checkProtectionAuthorityNormal} from './protection';
@@ -15,377 +14,377 @@ import method from '../global/method';
 
 //批注
 const luckysheetPostil = {
-    defaultWidth: 144,
-    defaultHeight: 84,
-    currentObj: null,
-    currentWinW: null,
-    currentWinH: null,
-    resize: null,
-    resizeXY: null,
-    move: false,
-    moveXY: null,
-    init: function(){
-        let _this = this;
+  defaultWidth: 144,
+  defaultHeight: 84,
+  currentObj: null,
+  currentWinW: null,
+  currentWinH: null,
+  resize: null,
+  resizeXY: null,
+  move: false,
+  moveXY: null,
+  init: function(){
+    const _this = this;
 
-        //点击批注框 聚焦
-        $("#luckysheet-postil-showBoxs").off("mousedown.showPs").on("mousedown.showPs", ".luckysheet-postil-show", function(event){
-            if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, "editObjects",false)){
-                return;
-            }
-            
-            _this.currentObj = $(this).find(".luckysheet-postil-show-main");
+    //点击批注框 聚焦
+    $('#luckysheet-postil-showBoxs').off('mousedown.showPs').on('mousedown.showPs', '.luckysheet-postil-show', function(event){
+      if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, 'editObjects',false)){
+        return;
+      }
 
-            if($(this).hasClass("luckysheet-postil-show-active")){
-                event.stopPropagation();
-                return;
-            }
+      _this.currentObj = $(this).find('.luckysheet-postil-show-main');
 
-            _this.removeActivePs();
+      if($(this).hasClass('luckysheet-postil-show-active')){
+        event.stopPropagation();
+        return;
+      }
 
-            $(this).addClass("luckysheet-postil-show-active");
-            $(this).find(".luckysheet-postil-dialog-resize").show();
-            $(this).find(".arrowCanvas").css("z-index", 200);
-            $(this).find(".luckysheet-postil-show-main").css("z-index", 200);
+      _this.removeActivePs();
 
-            event.stopPropagation();
-        });
-        $("#luckysheet-postil-showBoxs").off("mouseup.showPs").on("mouseup.showPs", ".luckysheet-postil-show", function(event){
-            if(event.which == "3"){
-                event.stopPropagation();
-            }
-        });
+      $(this).addClass('luckysheet-postil-show-active');
+      $(this).find('.luckysheet-postil-dialog-resize').show();
+      $(this).find('.arrowCanvas').css('z-index', 200);
+      $(this).find('.luckysheet-postil-show-main').css('z-index', 200);
 
-        //批注框 改变大小
-        $("#luckysheet-postil-showBoxs").off("mousedown.resize").on("mousedown.resize", ".luckysheet-postil-show .luckysheet-postil-dialog-resize .luckysheet-postil-dialog-resize-item", function(event){
-            if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, "editObjects",false)){
-                return;
-            }
-            
-            _this.currentObj = $(this).closest(".luckysheet-postil-show-main");
-            _this.currentWinW = $("#luckysheet-cell-main")[0].scrollWidth;
-            _this.currentWinH = $("#luckysheet-cell-main")[0].scrollHeight;
+      event.stopPropagation();
+    });
+    $('#luckysheet-postil-showBoxs').off('mouseup.showPs').on('mouseup.showPs', '.luckysheet-postil-show', function(event){
+      if(event.which == '3'){
+        event.stopPropagation();
+      }
+    });
 
-            _this.resize = $(this).data("type");
+    //批注框 改变大小
+    $('#luckysheet-postil-showBoxs').off('mousedown.resize').on('mousedown.resize', '.luckysheet-postil-show .luckysheet-postil-dialog-resize .luckysheet-postil-dialog-resize-item', function(event){
+      if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, 'editObjects',false)){
+        return;
+      }
 
-            let scrollTop = $("#luckysheet-cell-main").scrollTop(), 
-                scrollLeft = $("#luckysheet-cell-main").scrollLeft();
-            let mouse = mouseposition(event.pageX, event.pageY);
-            let x = mouse[0] + scrollLeft;
-            let y = mouse[1] + scrollTop;
+      _this.currentObj = $(this).closest('.luckysheet-postil-show-main');
+      _this.currentWinW = $('#luckysheet-cell-main')[0].scrollWidth;
+      _this.currentWinH = $('#luckysheet-cell-main')[0].scrollHeight;
 
-            let position = _this.currentObj.position();
-            let width = _this.currentObj.width();
-            let height = _this.currentObj.height();
+      _this.resize = $(this).data('type');
 
-            _this.resizeXY = [
-                x, 
-                y, 
-                width, 
-                height, 
-                position.left + scrollLeft, 
-                position.top + scrollTop, 
-                scrollLeft, 
-                scrollTop
-            ];
+      const scrollTop = $('#luckysheet-cell-main').scrollTop(),
+        scrollLeft = $('#luckysheet-cell-main').scrollLeft();
+      const mouse = mouseposition(event.pageX, event.pageY);
+      const x = mouse[0] + scrollLeft;
+      const y = mouse[1] + scrollTop;
 
-            setluckysheet_scroll_status(true);
+      const position = _this.currentObj.position();
+      const width = _this.currentObj.width();
+      const height = _this.currentObj.height();
 
-            if($(this).closest(".luckysheet-postil-show").hasClass("luckysheet-postil-show-active")){
-                event.stopPropagation();
-                return;
-            }
+      _this.resizeXY = [
+        x,
+        y,
+        width,
+        height,
+        position.left + scrollLeft,
+        position.top + scrollTop,
+        scrollLeft,
+        scrollTop
+      ];
 
-            _this.removeActivePs();
+      setluckysheet_scroll_status(true);
 
-            $(this).closest(".luckysheet-postil-show").addClass("luckysheet-postil-show-active");
-            $(this).closest(".luckysheet-postil-show").find(".luckysheet-postil-dialog-resize").show();
-            $(this).closest(".luckysheet-postil-show").find(".arrowCanvas").css("z-index", 200);
-            $(this).closest(".luckysheet-postil-show").find(".luckysheet-postil-show-main").css("z-index", 200);
+      if($(this).closest('.luckysheet-postil-show').hasClass('luckysheet-postil-show-active')){
+        event.stopPropagation();
+        return;
+      }
 
-            event.stopPropagation();
-        });
+      _this.removeActivePs();
 
-        //批注框 移动
-        $("#luckysheet-postil-showBoxs").off("mousedown.move").on("mousedown.move", ".luckysheet-postil-show .luckysheet-postil-dialog-move .luckysheet-postil-dialog-move-item", function(event){
-            if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, "editObjects",false)){
-                return;
-            }
-            
-            _this.currentObj = $(this).closest(".luckysheet-postil-show-main");
-            _this.currentWinW = $("#luckysheet-cell-main")[0].scrollWidth;
-            _this.currentWinH = $("#luckysheet-cell-main")[0].scrollHeight;
+      $(this).closest('.luckysheet-postil-show').addClass('luckysheet-postil-show-active');
+      $(this).closest('.luckysheet-postil-show').find('.luckysheet-postil-dialog-resize').show();
+      $(this).closest('.luckysheet-postil-show').find('.arrowCanvas').css('z-index', 200);
+      $(this).closest('.luckysheet-postil-show').find('.luckysheet-postil-show-main').css('z-index', 200);
 
-            _this.move = true;
+      event.stopPropagation();
+    });
 
-            let scrollTop = $("#luckysheet-cell-main").scrollTop(), 
-                scrollLeft = $("#luckysheet-cell-main").scrollLeft();
+    //批注框 移动
+    $('#luckysheet-postil-showBoxs').off('mousedown.move').on('mousedown.move', '.luckysheet-postil-show .luckysheet-postil-dialog-move .luckysheet-postil-dialog-move-item', function(event){
+      if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, 'editObjects',false)){
+        return;
+      }
 
-            let offset = _this.currentObj.offset();
-            let position = _this.currentObj.position();
+      _this.currentObj = $(this).closest('.luckysheet-postil-show-main');
+      _this.currentWinW = $('#luckysheet-cell-main')[0].scrollWidth;
+      _this.currentWinH = $('#luckysheet-cell-main')[0].scrollHeight;
 
-            _this.moveXY = [
-                event.pageX - offset.left, 
-                event.pageY - offset.top, 
-                position.left, 
-                position.top, 
-                scrollLeft, 
-                scrollTop
-            ];
+      _this.move = true;
 
-            setluckysheet_scroll_status(true);
+      const scrollTop = $('#luckysheet-cell-main').scrollTop(),
+        scrollLeft = $('#luckysheet-cell-main').scrollLeft();
 
-            if($(this).closest(".luckysheet-postil-show").hasClass("luckysheet-postil-show-active")){
-                event.stopPropagation();
-                return;
-            }
+      const offset = _this.currentObj.offset();
+      const position = _this.currentObj.position();
 
-            _this.removeActivePs();
+      _this.moveXY = [
+        event.pageX - offset.left,
+        event.pageY - offset.top,
+        position.left,
+        position.top,
+        scrollLeft,
+        scrollTop
+      ];
 
-            $(this).closest(".luckysheet-postil-show").addClass("luckysheet-postil-show-active");
-            $(this).closest(".luckysheet-postil-show").find(".luckysheet-postil-dialog-resize").show();
-            $(this).closest(".luckysheet-postil-show").find(".arrowCanvas").css("z-index", 200);
-            $(this).closest(".luckysheet-postil-show").find(".luckysheet-postil-show-main").css("z-index", 200);
+      setluckysheet_scroll_status(true);
 
-            event.stopPropagation();
-        });
-    },
-    overshow: function(event){
-        let _this = this;
+      if($(this).closest('.luckysheet-postil-show').hasClass('luckysheet-postil-show-active')){
+        event.stopPropagation();
+        return;
+      }
 
-        $("#luckysheet-postil-overshow").remove();
+      _this.removeActivePs();
 
-        if($(event.target).closest("#luckysheet-cell-main").length == 0){
-            return;
-        }
+      $(this).closest('.luckysheet-postil-show').addClass('luckysheet-postil-show-active');
+      $(this).closest('.luckysheet-postil-show').find('.luckysheet-postil-dialog-resize').show();
+      $(this).closest('.luckysheet-postil-show').find('.arrowCanvas').css('z-index', 200);
+      $(this).closest('.luckysheet-postil-show').find('.luckysheet-postil-show-main').css('z-index', 200);
 
-        let mouse = mouseposition(event.pageX, event.pageY);
-        let scrollLeft = $("#luckysheet-cell-main").scrollLeft();
-        let scrollTop = $("#luckysheet-cell-main").scrollTop();
-        let x = mouse[0];
-        let y = mouse[1];
-        let offsetX = 0;
-        let offsetY = 0;
+      event.stopPropagation();
+    });
+  },
+  overshow: function(event){
+    const _this = this;
 
-        if(luckysheetFreezen.freezenverticaldata != null && mouse[0] < (luckysheetFreezen.freezenverticaldata[0] - luckysheetFreezen.freezenverticaldata[2])){
-            offsetX = scrollLeft;
-        } else {
-            x += scrollLeft;
-        }
+    $('#luckysheet-postil-overshow').remove();
 
-        if(luckysheetFreezen.freezenhorizontaldata != null && mouse[1] < (luckysheetFreezen.freezenhorizontaldata[0] - luckysheetFreezen.freezenhorizontaldata[2])){
-            offsetY = scrollTop;
-        } else {
-            y += scrollTop;
-        }
+    if($(event.target).closest('#luckysheet-cell-main').length == 0){
+      return;
+    }
 
-        let row_index = rowLocation(y)[2];
-        let col_index = colLocation(x)[2];
+    const mouse = mouseposition(event.pageX, event.pageY);
+    const scrollLeft = $('#luckysheet-cell-main').scrollLeft();
+    const scrollTop = $('#luckysheet-cell-main').scrollTop();
+    let x = mouse[0];
+    let y = mouse[1];
+    let offsetX = 0;
+    let offsetY = 0;
 
-        let margeset = menuButton.mergeborer(Store.flowdata, row_index, col_index);
-        if(!!margeset){
-            row_index = margeset.row[2];
-            col_index = margeset.column[2];
-        }
+    if(luckysheetFreezen.freezenverticaldata != null && mouse[0] < (luckysheetFreezen.freezenverticaldata[0] - luckysheetFreezen.freezenverticaldata[2])){
+      offsetX = scrollLeft;
+    } else {
+      x += scrollLeft;
+    }
 
-        if(Store.flowdata[row_index] == null || Store.flowdata[row_index][col_index] == null || Store.flowdata[row_index][col_index].ps == null){
-            return;
-        }
+    if(luckysheetFreezen.freezenhorizontaldata != null && mouse[1] < (luckysheetFreezen.freezenhorizontaldata[0] - luckysheetFreezen.freezenhorizontaldata[2])){
+      offsetY = scrollTop;
+    } else {
+      y += scrollTop;
+    }
 
-        let postil = Store.flowdata[row_index][col_index].ps;
+    let row_index = rowLocation(y)[2];
+    let col_index = colLocation(x)[2];
 
-        if(postil["isshow"] || $("#luckysheet-postil-show_"+ row_index +"_"+ col_index).length > 0){
-            return;
-        }
+    const margeset = menuButton.mergeborer(Store.flowdata, row_index, col_index);
+    if(margeset){
+      row_index = margeset.row[2];
+      col_index = margeset.column[2];
+    }
 
-        let value = postil["value"] == null ? "" : postil["value"];
+    if(Store.flowdata[row_index] == null || Store.flowdata[row_index][col_index] == null || Store.flowdata[row_index][col_index].ps == null){
+      return;
+    }
 
-        let row = Store.visibledatarow[row_index], 
-            row_pre = row_index - 1 == -1 ? 0 : Store.visibledatarow[row_index - 1];
-        let col = Store.visibledatacolumn[col_index], 
-            col_pre = col_index - 1 == -1 ? 0 : Store.visibledatacolumn[col_index - 1];
+    const postil = Store.flowdata[row_index][col_index].ps;
 
-        if(!!margeset){
-            row = margeset.row[1];
-            row_pre = margeset.row[0];
-            
-            col = margeset.column[1];
-            col_pre = margeset.column[0];
-        }
+    if(postil['isshow'] || $(`#luckysheet-postil-show_${ row_index }_${ col_index}`).length > 0){
+      return;
+    }
 
-        let toX = col + offsetX;
-        let toY = row_pre + offsetY;
+    const value = postil['value'] == null ? '' : postil['value'];
 
-        let fromX = toX + 18 * Store.zoomRatio;
-        let fromY = toY - 18 * Store.zoomRatio;
+    let row = Store.visibledatarow[row_index],
+      row_pre = row_index - 1 == -1 ? 0 : Store.visibledatarow[row_index - 1];
+    let col = Store.visibledatacolumn[col_index],
+      col_pre = col_index - 1 == -1 ? 0 : Store.visibledatacolumn[col_index - 1];
 
-        if(fromY < 0){
-            fromY = 2;
-        }
+    if(margeset){
+      row = margeset.row[1];
+      row_pre = margeset.row[0];
 
-        let width = postil["width"] == null ? _this.defaultWidth * Store.zoomRatio : postil["width"] * Store.zoomRatio;
-        let height = postil["height"] == null ? _this.defaultHeight * Store.zoomRatio : postil["height"] * Store.zoomRatio;
+      col = margeset.column[1];
+      col_pre = margeset.column[0];
+    }
 
-        let size = _this.getArrowCanvasSize(fromX, fromY, toX, toY);
+    const toX = col + offsetX;
+    const toY = row_pre + offsetY;
 
-        let commentDivs = '';
-        let valueLines = value.split('\n');
-        for (let line of valueLines) {
-            commentDivs += '<div>' + _this.htmlEscape(line) + '</div>';
-        }
+    const fromX = toX + 18 * Store.zoomRatio;
+    let fromY = toY - 18 * Store.zoomRatio;
 
-        let html =  '<div id="luckysheet-postil-overshow">' +
-                        '<canvas class="arrowCanvas" width="'+ size[2] +'" height="'+ size[3] +'" style="position:absolute;left:'+ size[0] +'px;top:'+ size[1] +'px;z-index:100;pointer-events:none;"></canvas>' +
-                        '<div style="width:'+ (width - 12) +'px;min-height:'+ (height - 12) +'px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:'+ fromX +'px;top:'+ fromY +'px;z-index:100;">'+ commentDivs +'</div>' +
+    if(fromY < 0){
+      fromY = 2;
+    }
+
+    const width = postil['width'] == null ? _this.defaultWidth * Store.zoomRatio : postil['width'] * Store.zoomRatio;
+    const height = postil['height'] == null ? _this.defaultHeight * Store.zoomRatio : postil['height'] * Store.zoomRatio;
+
+    const size = _this.getArrowCanvasSize(fromX, fromY, toX, toY);
+
+    let commentDivs = '';
+    const valueLines = value.split('\n');
+    for (const line of valueLines) {
+      commentDivs += `<div>${  _this.htmlEscape(line)  }</div>`;
+    }
+
+    const html =  '<div id="luckysheet-postil-overshow">' +
+                        `<canvas class="arrowCanvas" width="${ size[2] }" height="${ size[3] }" style="position:absolute;left:${ size[0] }px;top:${ size[1] }px;z-index:100;pointer-events:none;"></canvas>` +
+                        `<div style="width:${ width - 12 }px;min-height:${ height - 12 }px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:${ fromX }px;top:${ fromY }px;z-index:100;">${ commentDivs }</div>` +
                     '</div>';
 
-        $(html).appendTo($("#luckysheet-cell-main"));
+    $(html).appendTo($('#luckysheet-cell-main'));
 
-        let ctx = $("#luckysheet-postil-overshow .arrowCanvas").get(0).getContext("2d");
+    const ctx = $('#luckysheet-postil-overshow .arrowCanvas').get(0).getContext('2d');
 
-        _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
-    },
-    getArrowCanvasSize: function(fromX, fromY, toX, toY){
-        let left = toX - 5;
-        
-        if(fromX < toX){
-            left = fromX - 5;
+    _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
+  },
+  getArrowCanvasSize: function(fromX, fromY, toX, toY){
+    let left = toX - 5;
+
+    if(fromX < toX){
+      left = fromX - 5;
+    }
+
+    let top = toY - 5;
+
+    if(fromY < toY){
+      top = fromY - 5;
+    }
+
+    const width = Math.abs(fromX - toX) + 10;
+    const height = Math.abs(fromY - toY) + 10;
+
+    let x1 = width - 5;
+    let x2 = 5;
+
+    if(fromX < toX){
+      x1 = 5;
+      x2 = width - 5;
+    }
+
+    let y1 = height - 5;
+    let y2 = 5;
+
+    if(fromY < toY){
+      y1 = 5;
+      y2 = height - 5;
+    }
+
+    return [left, top, width, height, x1, y1, x2, y2];
+  },
+  drawArrow: function(ctx, fromX, fromY, toX, toY, theta, headlen, width, color){
+    theta = getObjType(theta) == 'undefined' ? 30 : theta;
+    headlen = getObjType(headlen) == 'undefined' ? 6 : headlen;
+    width = getObjType(width) == 'undefined' ? 1 : width;
+    color = getObjType(color) == 'undefined' ? '#000' : color;
+
+    // 计算各角度和对应的P2,P3坐标
+    const angle = Math.atan2(fromY - toY, fromX - toX) * 180 / Math.PI,
+      angle1 = (angle + theta) * Math.PI / 180,
+      angle2 = (angle - theta) * Math.PI / 180,
+      topX = headlen * Math.cos(angle1),
+      topY = headlen * Math.sin(angle1),
+      botX = headlen * Math.cos(angle2),
+      botY = headlen * Math.sin(angle2);
+
+    ctx.save();
+    ctx.beginPath();
+
+    let arrowX = fromX - topX,
+      arrowY = fromY - topY;
+
+    ctx.moveTo(arrowX, arrowY);
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+
+    ctx.lineWidth = width;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+
+    arrowX = toX + topX;
+    arrowY = toY + topY;
+    ctx.moveTo(arrowX, arrowY);
+    ctx.lineTo(toX, toY);
+    arrowX = toX + botX;
+    arrowY = toY + botY;
+    ctx.lineTo(arrowX, arrowY);
+
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+  },
+  buildAllPs: function(data){
+    const _this = this;
+
+    $('#luckysheet-cell-main #luckysheet-postil-showBoxs').empty();
+
+    for(let r = 0; r < data.length; r++){
+      for(let c = 0; c < data[0].length; c++){
+        if(data[r][c] != null && data[r][c].ps != null){
+          const postil = data[r][c].ps;
+          _this.buildPs(r, c, postil);
         }
+      }
+    }
 
-        let top = toY - 5;
-        
-        if(fromY < toY){
-            top = fromY - 5;
-        }
+    _this.init();
+  },
+  buildPs: function(r, c, postil){
+    if($(`#luckysheet-postil-show_${ r }_${ c}`).length > 0){
+      $(`#luckysheet-postil-show_${ r }_${ c}`).remove();
+    }
 
-        let width = Math.abs(fromX - toX) + 10;
-        let height = Math.abs(fromY - toY) + 10;
+    if(postil == null){
+      return;
+    }
 
-        let x1 = width - 5;
-        let x2 = 5;
-        
-        if(fromX < toX){
-            x1 = 5;
-            x2 = width - 5;
-        }
+    const _this = this;
+    const isshow = postil['isshow'] == null ? false : postil['isshow'];
 
-        let y1 = height - 5;
-        let y2 = 5;
+    if(isshow){
+      let row = Store.visibledatarow[r],
+        row_pre = r - 1 == -1 ? 0 : Store.visibledatarow[r - 1];
+      let col = Store.visibledatacolumn[c],
+        col_pre = c - 1 == -1 ? 0 : Store.visibledatacolumn[c - 1];
 
-        if(fromY < toY){
-            y1 = 5;
-            y2 = height - 5;
-        }
+      const margeset = menuButton.mergeborer(Store.flowdata, r, c);
+      if(margeset){
+        row = margeset.row[1];
+        row_pre = margeset.row[0];
 
-        return [left, top, width, height, x1, y1, x2, y2];
-    },
-    drawArrow: function(ctx, fromX, fromY, toX, toY, theta, headlen, width, color){
-        theta = getObjType(theta) == "undefined" ? 30 : theta;
-        headlen = getObjType(headlen) == "undefined" ? 6 : headlen;
-        width = getObjType(width) == "undefined" ? 1 : width;
-        color = getObjType(color) == "undefined" ? "#000" : color;
+        col = margeset.column[1];
+        col_pre = margeset.column[0];
+      }
 
-        // 计算各角度和对应的P2,P3坐标
-        let angle = Math.atan2(fromY - toY, fromX - toX) * 180 / Math.PI, 
-            angle1 = (angle + theta) * Math.PI / 180, 
-            angle2 = (angle - theta) * Math.PI / 180, 
-            topX = headlen * Math.cos(angle1), 
-            topY = headlen * Math.sin(angle1), 
-            botX = headlen * Math.cos(angle2), 
-            botY = headlen * Math.sin(angle2);
+      const toX = col;
+      const toY = row_pre;
 
-        ctx.save();
-        ctx.beginPath();
+      const left = postil['left'] == null ? toX + 18 * Store.zoomRatio : postil['left'] * Store.zoomRatio;
+      let top = postil['top'] == null ? toY - 18 * Store.zoomRatio : postil['top'] * Store.zoomRatio;
+      const width = postil['width'] == null ? _this.defaultWidth * Store.zoomRatio : postil['width'] * Store.zoomRatio;
+      const height = postil['height'] == null ? _this.defaultHeight * Store.zoomRatio : postil['height'] * Store.zoomRatio;
+      const value = postil['value'] == null ? '' : postil['value'];
 
-        let arrowX = fromX - topX,
-            arrowY = fromY - topY;
+      if(top < 0){
+        top = 2;
+      }
 
-        ctx.moveTo(arrowX, arrowY); 
-        ctx.moveTo(fromX, fromY); 
-        ctx.lineTo(toX, toY); 
-        
-        ctx.lineWidth = width;
-        ctx.strokeStyle = color; 
-        ctx.stroke();
+      const size = _this.getArrowCanvasSize(left, top, toX, toY);
 
-        arrowX = toX + topX; 
-        arrowY = toY + topY; 
-        ctx.moveTo(arrowX, arrowY); 
-        ctx.lineTo(toX, toY); 
-        arrowX = toX + botX; 
-        arrowY = toY + botY; 
-        ctx.lineTo(arrowX, arrowY); 
-        
-        ctx.fillStyle = color;
-        ctx.fill(); 
-        ctx.restore();
-    },
-    buildAllPs: function(data){
-        let _this = this;
+      let commentDivs = '';
+      const valueLines = value.split('\n');
+      for (const line of valueLines) {
+        commentDivs += `<div>${  _this.htmlEscape(line)  }</div>`;
+      }
 
-        $("#luckysheet-cell-main #luckysheet-postil-showBoxs").empty();
-
-        for(let r = 0; r < data.length; r++){
-            for(let c = 0; c < data[0].length; c++){
-                if(data[r][c] != null && data[r][c].ps != null){
-                    let postil = data[r][c].ps;
-                    _this.buildPs(r, c, postil);
-                }
-            }
-        }
-
-        _this.init();
-    },
-    buildPs: function(r, c, postil){
-        if($("#luckysheet-postil-show_"+ r +"_"+ c).length > 0){
-            $("#luckysheet-postil-show_"+ r +"_"+ c).remove();
-        }
-
-        if(postil == null){
-            return;
-        }
-
-        let _this = this;
-        let isshow = postil["isshow"] == null ? false : postil["isshow"];
-
-        if(isshow){
-            let row = Store.visibledatarow[r], 
-                row_pre = r - 1 == -1 ? 0 : Store.visibledatarow[r - 1];
-            let col = Store.visibledatacolumn[c], 
-                col_pre = c - 1 == -1 ? 0 : Store.visibledatacolumn[c - 1];
-
-            let margeset = menuButton.mergeborer(Store.flowdata, r, c);
-            if(!!margeset){
-                row = margeset.row[1];
-                row_pre = margeset.row[0];
-                
-                col = margeset.column[1];
-                col_pre = margeset.column[0];
-            }
-
-            let toX = col;
-            let toY = row_pre;
-
-            let left = postil["left"] == null ? toX + 18 * Store.zoomRatio : postil["left"] * Store.zoomRatio;
-            let top = postil["top"] == null ? toY - 18 * Store.zoomRatio : postil["top"] * Store.zoomRatio;
-            let width = postil["width"] == null ? _this.defaultWidth * Store.zoomRatio : postil["width"] * Store.zoomRatio;
-            let height = postil["height"] == null ? _this.defaultHeight * Store.zoomRatio : postil["height"] * Store.zoomRatio;
-            let value = postil["value"] == null ? "" : postil["value"];
-
-            if(top < 0){
-                top = 2;
-            }
-
-            let size = _this.getArrowCanvasSize(left, top, toX, toY);
-
-            let commentDivs = '';
-            let valueLines = value.split('\n');
-            for (let line of valueLines) {
-                commentDivs += '<div>' + _this.htmlEscape(line) + '</div>';
-            }
-
-            let html =  '<div id="luckysheet-postil-show_'+ r +'_'+ c +'" class="luckysheet-postil-show">' +
-                            '<canvas class="arrowCanvas" width="'+ size[2] +'" height="'+ size[3] +'" style="position:absolute;left:'+ size[0] +'px;top:'+ size[1] +'px;z-index:100;pointer-events:none;"></canvas>' +
-                            '<div class="luckysheet-postil-show-main" style="width:'+ width +'px;height:'+ height +'px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:'+ left +'px;top:'+ top +'px;box-sizing:border-box;z-index:100;">' +
+      const html =  `<div id="luckysheet-postil-show_${ r }_${ c }" class="luckysheet-postil-show">` +
+                            `<canvas class="arrowCanvas" width="${ size[2] }" height="${ size[3] }" style="position:absolute;left:${ size[0] }px;top:${ size[1] }px;z-index:100;pointer-events:none;"></canvas>` +
+                            `<div class="luckysheet-postil-show-main" style="width:${ width }px;height:${ height }px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:${ left }px;top:${ top }px;box-sizing:border-box;z-index:100;">` +
                                 '<div class="luckysheet-postil-dialog-move">' +
                                     '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-t" data-type="t"></div>' +
                                     '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-r" data-type="r"></div>' +
@@ -402,65 +401,65 @@ const luckysheetPostil = {
                                     '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-mb" data-type="mb"></div>' +
                                     '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-rb" data-type="rb"></div>' +
                                 '</div>' +
-                                '<div style="width:100%;height:100%;overflow:hidden;">' + 
-                                    '<div class="formulaInputFocus" style="width:'+ (width - 12) +'px;height:'+ (height - 12) +'px;line-height:20px;box-sizing:border-box;text-align: center;;word-break:break-all;" spellcheck="false" contenteditable="true">' +
-                                        commentDivs +
-                                    '</div>' +
+                                '<div style="width:100%;height:100%;overflow:hidden;">' +
+                                    `<div class="formulaInputFocus" style="width:${ width - 12 }px;height:${ height - 12 }px;line-height:20px;box-sizing:border-box;text-align: center;;word-break:break-all;" spellcheck="false" contenteditable="true">${
+                                      commentDivs
+                                    }</div>` +
                                 '</div>' +
                             '</div>' +
                         '</div>';
 
-            $(html).appendTo($("#luckysheet-cell-main #luckysheet-postil-showBoxs"));
+      $(html).appendTo($('#luckysheet-cell-main #luckysheet-postil-showBoxs'));
 
-            let ctx = $("#luckysheet-postil-show_"+ r +"_"+ c +" .arrowCanvas").get(0).getContext("2d");
+      const ctx = $(`#luckysheet-postil-show_${ r }_${ c } .arrowCanvas`).get(0).getContext('2d');
 
-            _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
-        }
-    },
-    newPs: function(r, c){
-        if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, "editObjects")){
-            return;
-        }
+      _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
+    }
+  },
+  newPs: function(r, c){
+    if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, 'editObjects')){
+      return;
+    }
 
-        // Hook function
-        if(!method.createHookFunction('commentInsertBefore',r,c, )){
-            return;
-        }
+    // Hook function
+    if(!method.createHookFunction('commentInsertBefore',r,c, )){
+      return;
+    }
 
-        let _this = this;
+    const _this = this;
 
-        let row = Store.visibledatarow[r], 
-            row_pre = r - 1 == -1 ? 0 : Store.visibledatarow[r - 1];
-        let col = Store.visibledatacolumn[c], 
-            col_pre = c - 1 == -1 ? 0 : Store.visibledatacolumn[c - 1];
+    let row = Store.visibledatarow[r],
+      row_pre = r - 1 == -1 ? 0 : Store.visibledatarow[r - 1];
+    let col = Store.visibledatacolumn[c],
+      col_pre = c - 1 == -1 ? 0 : Store.visibledatacolumn[c - 1];
 
-        let margeset = menuButton.mergeborer(Store.flowdata, r, c);
-        if(!!margeset){
-            row = margeset.row[1];
-            row_pre = margeset.row[0];
-            
-            col = margeset.column[1];
-            col_pre = margeset.column[0];
-        }
+    const margeset = menuButton.mergeborer(Store.flowdata, r, c);
+    if(margeset){
+      row = margeset.row[1];
+      row_pre = margeset.row[0];
 
-        let toX = col;
-        let toY = row_pre;
+      col = margeset.column[1];
+      col_pre = margeset.column[0];
+    }
 
-        let fromX = toX + 18 * Store.zoomRatio;
-        let fromY = toY - 18 * Store.zoomRatio;
+    const toX = col;
+    const toY = row_pre;
 
-        if(fromY < 0){
-            fromY = 2;
-        }
+    const fromX = toX + 18 * Store.zoomRatio;
+    let fromY = toY - 18 * Store.zoomRatio;
 
-        let width = _this.defaultWidth * Store.zoomRatio;
-        let height = _this.defaultHeight * Store.zoomRatio;
+    if(fromY < 0){
+      fromY = 2;
+    }
 
-        let size = _this.getArrowCanvasSize(fromX, fromY, toX, toY);
+    const width = _this.defaultWidth * Store.zoomRatio;
+    const height = _this.defaultHeight * Store.zoomRatio;
 
-        let html =  '<div id="luckysheet-postil-show_'+ r +'_'+ c +'" class="luckysheet-postil-show luckysheet-postil-show-active">' +
-                        '<canvas class="arrowCanvas" width="'+ size[2] +'" height="'+ size[3] +'" style="position:absolute;left:'+ size[0] +'px;top:'+ size[1] +'px;z-index:100;pointer-events:none;"></canvas>' +
-                        '<div class="luckysheet-postil-show-main" style="width:'+ width +'px;height:'+ height +'px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:'+ fromX +'px;top:'+ fromY +'px;box-sizing:border-box;z-index:100;">' +
+    const size = _this.getArrowCanvasSize(fromX, fromY, toX, toY);
+
+    const html =  `<div id="luckysheet-postil-show_${ r }_${ c }" class="luckysheet-postil-show luckysheet-postil-show-active">` +
+                        `<canvas class="arrowCanvas" width="${ size[2] }" height="${ size[3] }" style="position:absolute;left:${ size[0] }px;top:${ size[1] }px;z-index:100;pointer-events:none;"></canvas>` +
+                        `<div class="luckysheet-postil-show-main" style="width:${ width }px;height:${ height }px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:${ fromX }px;top:${ fromY }px;box-sizing:border-box;z-index:100;">` +
                             '<div class="luckysheet-postil-dialog-move">' +
                                 '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-t" data-type="t"></div>' +
                                 '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-r" data-type="r"></div>' +
@@ -477,93 +476,93 @@ const luckysheetPostil = {
                                 '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-mb" data-type="mb"></div>' +
                                 '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-rb" data-type="rb"></div>' +
                             '</div>' +
-                            '<div style="width:100%;height:100%;overflow:hidden;">' + 
+                            '<div style="width:100%;height:100%;overflow:hidden;">' +
                                 '<div class="formulaInputFocus" style="width:132px;height:72px;line-height:20px;box-sizing:border-box;text-align: center;word-break:break-all;" spellcheck="false" contenteditable="true">' +
                                 '</div>' +
                             '</div>' +
                         '</div>' +
                     '</div>';
 
-        $(html).appendTo($("#luckysheet-cell-main #luckysheet-postil-showBoxs"));
+    $(html).appendTo($('#luckysheet-cell-main #luckysheet-postil-showBoxs'));
 
-        let ctx = $("#luckysheet-postil-show_"+ r +"_"+ c +" .arrowCanvas").get(0).getContext("2d");
+    const ctx = $(`#luckysheet-postil-show_${ r }_${ c } .arrowCanvas`).get(0).getContext('2d');
 
-        _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
+    _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
 
-        $("#luckysheet-postil-show_"+ r +"_"+ c +" .formulaInputFocus").focus();
+    $(`#luckysheet-postil-show_${ r }_${ c } .formulaInputFocus`).focus();
 
-        _this.init();
+    _this.init();
 
-        let d = editor.deepCopyFlowData(Store.flowdata);
-        let rc = [];
+    const d = editor.deepCopyFlowData(Store.flowdata);
+    const rc = [];
 
-        if(d[r][c] == null){
-            d[r][c] = {};
-        }
+    if(d[r][c] == null){
+      d[r][c] = {};
+    }
 
-        d[r][c].ps = { "left": null, "top": null, "width": null, "height": null, "value": "", "isshow": false };
-        rc.push(r + "_" + c);
+    d[r][c].ps = { 'left': null, 'top': null, 'width': null, 'height': null, 'value': '', 'isshow': false };
+    rc.push(`${r  }_${  c}`);
 
-        _this.ref(d, rc);
+    _this.ref(d, rc);
 
-        // Hook function
-        setTimeout(() => {
-            method.createHookFunction('commentInsertAfter',r,c, d[r][c])
-        }, 0);
-    },
-    editPs: function(r, c){
-        let _this = this;
+    // Hook function
+    setTimeout(() => {
+      method.createHookFunction('commentInsertAfter',r,c, d[r][c]);
+    }, 0);
+  },
+  editPs: function(r, c){
+    const _this = this;
 
-        if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, "editObjects")){
-            return;
-        }
+    if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, 'editObjects')){
+      return;
+    }
 
-        if($("#luckysheet-postil-show_"+ r +"_"+ c).length > 0){
-            $("#luckysheet-postil-show_"+ r +"_"+ c).show();
-            $("#luckysheet-postil-show_"+ r +"_"+ c).addClass("luckysheet-postil-show-active");
-            $("#luckysheet-postil-show_"+ r +"_"+ c).find(".luckysheet-postil-dialog-resize").show();
-        }
-        else{
-            let postil = Store.flowdata[r][c].ps;
+    if($(`#luckysheet-postil-show_${ r }_${ c}`).length > 0){
+      $(`#luckysheet-postil-show_${ r }_${ c}`).show();
+      $(`#luckysheet-postil-show_${ r }_${ c}`).addClass('luckysheet-postil-show-active');
+      $(`#luckysheet-postil-show_${ r }_${ c}`).find('.luckysheet-postil-dialog-resize').show();
+    }
+    else{
+      const postil = Store.flowdata[r][c].ps;
 
-            let row = Store.visibledatarow[r], 
-                row_pre = r - 1 == -1 ? 0 : Store.visibledatarow[r - 1];
-            let col = Store.visibledatacolumn[c], 
-                col_pre = c - 1 == -1 ? 0 : Store.visibledatacolumn[c - 1];
+      let row = Store.visibledatarow[r],
+        row_pre = r - 1 == -1 ? 0 : Store.visibledatarow[r - 1];
+      let col = Store.visibledatacolumn[c],
+        col_pre = c - 1 == -1 ? 0 : Store.visibledatacolumn[c - 1];
 
-            let margeset = menuButton.mergeborer(Store.flowdata, r, c);
-            if(!!margeset){
-                row = margeset.row[1];
-                row_pre = margeset.row[0];
-                
-                col = margeset.column[1];
-                col_pre = margeset.column[0];
-            }
+      const margeset = menuButton.mergeborer(Store.flowdata, r, c);
+      if(margeset){
+        row = margeset.row[1];
+        row_pre = margeset.row[0];
 
-            let toX = col;
-            let toY = row_pre;
+        col = margeset.column[1];
+        col_pre = margeset.column[0];
+      }
 
-            let left = postil["left"] == null ? toX + 18 * Store.zoomRatio : postil["left"] * Store.zoomRatio;
-            let top = postil["top"] == null ? toY - 18 * Store.zoomRatio : postil["top"] * Store.zoomRatio;
-            let width = postil["width"] == null ? _this.defaultWidth * Store.zoomRatio : postil["width"] * Store.zoomRatio;
-            let height = postil["height"] == null ? _this.defaultHeight * Store.zoomRatio : postil["height"] * Store.zoomRatio;
-            let value = postil["value"] == null ? "" : postil["value"];
+      const toX = col;
+      const toY = row_pre;
 
-            if(top < 0){
-                top = 2;
-            }
+      const left = postil['left'] == null ? toX + 18 * Store.zoomRatio : postil['left'] * Store.zoomRatio;
+      let top = postil['top'] == null ? toY - 18 * Store.zoomRatio : postil['top'] * Store.zoomRatio;
+      const width = postil['width'] == null ? _this.defaultWidth * Store.zoomRatio : postil['width'] * Store.zoomRatio;
+      const height = postil['height'] == null ? _this.defaultHeight * Store.zoomRatio : postil['height'] * Store.zoomRatio;
+      const value = postil['value'] == null ? '' : postil['value'];
 
-            let size = _this.getArrowCanvasSize(left, top, toX, toY);
+      if(top < 0){
+        top = 2;
+      }
 
-            let commentDivs = '';
-            let valueLines = value.split('\n');
-            for (let line of valueLines) {
-                commentDivs += '<div>' + _this.htmlEscape(line) + '</div>';
-            }
+      const size = _this.getArrowCanvasSize(left, top, toX, toY);
 
-            let html =  '<div id="luckysheet-postil-show_'+ r +'_'+ c +'" class="luckysheet-postil-show luckysheet-postil-show-active">' +
-                            '<canvas class="arrowCanvas" width="'+ size[2] +'" height="'+ size[3] +'" style="position:absolute;left:'+ size[0] +'px;top:'+ size[1] +'px;z-index:100;pointer-events:none;"></canvas>' +
-                            '<div class="luckysheet-postil-show-main" style="width:'+ width +'px;height:'+ height +'px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:'+ left +'px;top:'+ top +'px;box-sizing:border-box;z-index:100;">' +
+      let commentDivs = '';
+      const valueLines = value.split('\n');
+      for (const line of valueLines) {
+        commentDivs += `<div>${  _this.htmlEscape(line)  }</div>`;
+      }
+
+      const html =  `<div id="luckysheet-postil-show_${ r }_${ c }" class="luckysheet-postil-show luckysheet-postil-show-active">` +
+                            `<canvas class="arrowCanvas" width="${ size[2] }" height="${ size[3] }" style="position:absolute;left:${ size[0] }px;top:${ size[1] }px;z-index:100;pointer-events:none;"></canvas>` +
+                            `<div class="luckysheet-postil-show-main" style="width:${ width }px;height:${ height }px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:${ left }px;top:${ top }px;box-sizing:border-box;z-index:100;">` +
                                 '<div class="luckysheet-postil-dialog-move">' +
                                     '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-t" data-type="t"></div>' +
                                     '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-r" data-type="r"></div>' +
@@ -580,116 +579,116 @@ const luckysheetPostil = {
                                     '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-mb" data-type="mb"></div>' +
                                     '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-rb" data-type="rb"></div>' +
                                 '</div>' +
-                                '<div style="width:100%;height:100%;overflow:hidden;">' + 
-                                    '<div class="formulaInputFocus" style="width:'+ (width - 12) +'px;height:'+ (height - 12) +'px;line-height:20px;box-sizing:border-box;text-align: center;;word-break:break-all;" spellcheck="false" contenteditable="true">' +
-                                        commentDivs +
-                                    '</div>' +
+                                '<div style="width:100%;height:100%;overflow:hidden;">' +
+                                    `<div class="formulaInputFocus" style="width:${ width - 12 }px;height:${ height - 12 }px;line-height:20px;box-sizing:border-box;text-align: center;;word-break:break-all;" spellcheck="false" contenteditable="true">${
+                                      commentDivs
+                                    }</div>` +
                                 '</div>' +
                             '</div>' +
                         '</div>';
 
-            $(html).appendTo($("#luckysheet-cell-main #luckysheet-postil-showBoxs"));
+      $(html).appendTo($('#luckysheet-cell-main #luckysheet-postil-showBoxs'));
 
-            let ctx = $("#luckysheet-postil-show_"+ r +"_"+ c +" .arrowCanvas").get(0).getContext("2d");
+      const ctx = $(`#luckysheet-postil-show_${ r }_${ c } .arrowCanvas`).get(0).getContext('2d');
 
-            _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
-        }
+      _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
+    }
 
-        $("#luckysheet-postil-show_"+ r +"_"+ c +" .formulaInputFocus").focus();
-        luckysheetRangeLast($("#luckysheet-postil-show_"+ r +"_"+ c +" .formulaInputFocus").get(0));
+    $(`#luckysheet-postil-show_${ r }_${ c } .formulaInputFocus`).focus();
+    luckysheetRangeLast($(`#luckysheet-postil-show_${ r }_${ c } .formulaInputFocus`).get(0));
 
-        _this.init();
-    },
-    delPs: function(r, c){
-        if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, "editObjects")){
-            return;
-        }
+    _this.init();
+  },
+  delPs: function(r, c){
+    if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, 'editObjects')){
+      return;
+    }
 
-        // Hook function
-        if(!method.createHookFunction('commentDeleteBefore',r,c,Store.flowdata[r][c])){
-            return;
-        }
+    // Hook function
+    if(!method.createHookFunction('commentDeleteBefore',r,c,Store.flowdata[r][c])){
+      return;
+    }
 
-        if($("#luckysheet-postil-show_"+ r +"_"+ c).length > 0){
-            $("#luckysheet-postil-show_"+ r +"_"+ c).remove();
-        }
+    if($(`#luckysheet-postil-show_${ r }_${ c}`).length > 0){
+      $(`#luckysheet-postil-show_${ r }_${ c}`).remove();
+    }
 
-        let d = editor.deepCopyFlowData(Store.flowdata);
-        let rc = [];
+    const d = editor.deepCopyFlowData(Store.flowdata);
+    const rc = [];
 
-        delete d[r][c].ps;
-        rc.push(r + "_" + c);
+    delete d[r][c].ps;
+    rc.push(`${r  }_${  c}`);
 
-        this.ref(d, rc);
+    this.ref(d, rc);
 
-        // Hook function
-        setTimeout(() => {
-            method.createHookFunction('commentDeleteAfter',r,c, Store.flowdata[r][c])
-        }, 0);
-    },
-    showHidePs: function(r, c){
-        let _this = this;
+    // Hook function
+    setTimeout(() => {
+      method.createHookFunction('commentDeleteAfter',r,c, Store.flowdata[r][c]);
+    }, 0);
+  },
+  showHidePs: function(r, c){
+    const _this = this;
 
-        let postil = Store.flowdata[r][c].ps;
-        let isshow = postil["isshow"];
+    const postil = Store.flowdata[r][c].ps;
+    const isshow = postil['isshow'];
 
-        let d = editor.deepCopyFlowData(Store.flowdata);
-        let rc = [];
+    const d = editor.deepCopyFlowData(Store.flowdata);
+    const rc = [];
 
-        if(isshow){
-            d[r][c].ps.isshow = false;
+    if(isshow){
+      d[r][c].ps.isshow = false;
 
-            $("#luckysheet-postil-show_"+ r +"_"+ c).remove();
-        }
-        else{
-            d[r][c].ps.isshow = true;
+      $(`#luckysheet-postil-show_${ r }_${ c}`).remove();
+    }
+    else{
+      d[r][c].ps.isshow = true;
 
-            let row = Store.visibledatarow[r], 
-                row_pre = r - 1 == -1 ? 0 : Store.visibledatarow[r - 1];
-            let col = Store.visibledatacolumn[c], 
-                col_pre = c - 1 == -1 ? 0 : Store.visibledatacolumn[c - 1];
+      let row = Store.visibledatarow[r],
+        row_pre = r - 1 == -1 ? 0 : Store.visibledatarow[r - 1];
+      let col = Store.visibledatacolumn[c],
+        col_pre = c - 1 == -1 ? 0 : Store.visibledatacolumn[c - 1];
 
-            let margeset = menuButton.mergeborer(Store.flowdata, r, c);
-            if(!!margeset){
-                row = margeset.row[1];
-                row_pre = margeset.row[0];
-                
-                col = margeset.column[1];
-                col_pre = margeset.column[0];
-            }
+      const margeset = menuButton.mergeborer(Store.flowdata, r, c);
+      if(margeset){
+        row = margeset.row[1];
+        row_pre = margeset.row[0];
 
-            let scrollLeft = $("#luckysheet-cell-main").scrollLeft();
-            let scrollTop = $("#luckysheet-cell-main").scrollTop();
+        col = margeset.column[1];
+        col_pre = margeset.column[0];
+      }
 
-            let toX = col;
-            let toY = row_pre;
+      const scrollLeft = $('#luckysheet-cell-main').scrollLeft();
+      const scrollTop = $('#luckysheet-cell-main').scrollTop();
 
-            if(luckysheetFreezen.freezenverticaldata != null && toX < (luckysheetFreezen.freezenverticaldata[0] - luckysheetFreezen.freezenverticaldata[2])){
-                toX += scrollLeft;
-            }
-            if(luckysheetFreezen.freezenhorizontaldata != null && toY < (luckysheetFreezen.freezenhorizontaldata[0] - luckysheetFreezen.freezenhorizontaldata[2])){
-                toY += scrollTop;
-            }
+      let toX = col;
+      let toY = row_pre;
 
-            let left = postil["left"] == null ? toX + 18 * Store.zoomRatio : postil["left"] * Store.zoomRatio;
-            let top = postil["top"] == null ? toY - 18 * Store.zoomRatio : postil["top"] * Store.zoomRatio;
-            let width = postil["width"] == null ? _this.defaultWidth * Store.zoomRatio : postil["width"] * Store.zoomRatio;
-            let height = postil["height"] == null ? _this.defaultHeight * Store.zoomRatio : postil["height"] * Store.zoomRatio;
-            let value = postil["value"] == null ? "" : postil["value"];
+      if(luckysheetFreezen.freezenverticaldata != null && toX < (luckysheetFreezen.freezenverticaldata[0] - luckysheetFreezen.freezenverticaldata[2])){
+        toX += scrollLeft;
+      }
+      if(luckysheetFreezen.freezenhorizontaldata != null && toY < (luckysheetFreezen.freezenhorizontaldata[0] - luckysheetFreezen.freezenhorizontaldata[2])){
+        toY += scrollTop;
+      }
 
-            if(top < 0){
-                top = 2;
-            }
+      const left = postil['left'] == null ? toX + 18 * Store.zoomRatio : postil['left'] * Store.zoomRatio;
+      let top = postil['top'] == null ? toY - 18 * Store.zoomRatio : postil['top'] * Store.zoomRatio;
+      const width = postil['width'] == null ? _this.defaultWidth * Store.zoomRatio : postil['width'] * Store.zoomRatio;
+      const height = postil['height'] == null ? _this.defaultHeight * Store.zoomRatio : postil['height'] * Store.zoomRatio;
+      const value = postil['value'] == null ? '' : postil['value'];
 
-            let size = _this.getArrowCanvasSize(left, top, toX, toY);
-            let commentDivs = '';
-            let valueLines = value.split('\n');
-            for (let line of valueLines) {
-                commentDivs += '<div>' + _this.htmlEscape(line) + '</div>';
-            }
-            let html =  '<div id="luckysheet-postil-show_'+ r +'_'+ c +'" class="luckysheet-postil-show">' +
-                            '<canvas class="arrowCanvas" width="'+ size[2] +'" height="'+ size[3] +'" style="position:absolute;left:'+ size[0] +'px;top:'+ size[1] +'px;z-index:100;pointer-events:none;"></canvas>' +
-                            '<div class="luckysheet-postil-show-main" style="width:'+ width +'px;height:'+ height +'px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:'+ left +'px;top:'+ top +'px;box-sizing:border-box;z-index:100;">' +
+      if(top < 0){
+        top = 2;
+      }
+
+      const size = _this.getArrowCanvasSize(left, top, toX, toY);
+      let commentDivs = '';
+      const valueLines = value.split('\n');
+      for (const line of valueLines) {
+        commentDivs += `<div>${  _this.htmlEscape(line)  }</div>`;
+      }
+      const html =  `<div id="luckysheet-postil-show_${ r }_${ c }" class="luckysheet-postil-show">` +
+                            `<canvas class="arrowCanvas" width="${ size[2] }" height="${ size[3] }" style="position:absolute;left:${ size[0] }px;top:${ size[1] }px;z-index:100;pointer-events:none;"></canvas>` +
+                            `<div class="luckysheet-postil-show-main" style="width:${ width }px;height:${ height }px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:${ left }px;top:${ top }px;box-sizing:border-box;z-index:100;">` +
                                 '<div class="luckysheet-postil-dialog-move">' +
                                     '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-t" data-type="t"></div>' +
                                     '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-r" data-type="r"></div>' +
@@ -706,120 +705,120 @@ const luckysheetPostil = {
                                     '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-mb" data-type="mb"></div>' +
                                     '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-rb" data-type="rb"></div>' +
                                 '</div>' +
-                                '<div style="width:100%;height:100%;overflow:hidden;">' + 
-                                    '<div class="formulaInputFocus" style="width:'+ (width - 12) +'px;height:'+ (height - 12) +'px;line-height:20px;box-sizing:border-box;text-align: center;;word-break:break-all;" spellcheck="false" contenteditable="true">' +
-                                        commentDivs +
-                                    '</div>' +
+                                '<div style="width:100%;height:100%;overflow:hidden;">' +
+                                    `<div class="formulaInputFocus" style="width:${ width - 12 }px;height:${ height - 12 }px;line-height:20px;box-sizing:border-box;text-align: center;;word-break:break-all;" spellcheck="false" contenteditable="true">${
+                                      commentDivs
+                                    }</div>` +
                                 '</div>' +
                             '</div>' +
                         '</div>';
 
-            $(html).appendTo($("#luckysheet-cell-main #luckysheet-postil-showBoxs"));
+      $(html).appendTo($('#luckysheet-cell-main #luckysheet-postil-showBoxs'));
 
-            let ctx = $("#luckysheet-postil-show_"+ r +"_"+ c +" .arrowCanvas").get(0).getContext("2d");
+      const ctx = $(`#luckysheet-postil-show_${ r }_${ c } .arrowCanvas`).get(0).getContext('2d');
 
-            _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
+      _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
 
-            _this.init();
+      _this.init();
+    }
+
+    rc.push(`${r  }_${  c}`);
+
+    _this.ref(d, rc);
+  },
+  showHideAllPs: function(){
+    const _this = this;
+
+    const d = editor.deepCopyFlowData(Store.flowdata);
+
+    let isAllShow = true;
+    const allPs = [];
+
+    for(let r = 0; r < d.length; r++){
+      for(let c = 0; c < d[0].length; c++){
+        if(d[r] != null && d[r][c] != null && d[r][c].ps != null){
+          allPs.push(`${r  }_${  c}`);
+
+          if(!d[r][c].ps.isshow){
+            isAllShow = false;
+          }
         }
+      }
+    }
 
-        rc.push(r + "_" + c);
+    const rc = [];
+    if(allPs.length > 0){
+      if(isAllShow){ //全部显示，操作为隐藏所有批注
+        $('#luckysheet-cell-main #luckysheet-postil-showBoxs').empty();
 
-        _this.ref(d, rc);
-    },
-    showHideAllPs: function(){
-        let _this = this;
+        for(let i = 0; i < allPs.length; i++){
+          const rowIndex = allPs[i].split('_')[0];
+          const colIndex = allPs[i].split('_')[1];
 
-        let d = editor.deepCopyFlowData(Store.flowdata);
+          const postil = d[rowIndex][colIndex].ps;
 
-        let isAllShow = true;
-        let allPs = [];
-
-        for(let r = 0; r < d.length; r++){
-            for(let c = 0; c < d[0].length; c++){
-                if(d[r] != null && d[r][c] != null && d[r][c].ps != null){
-                    allPs.push(r + "_" + c);
-
-                    if(!d[r][c].ps.isshow){
-                        isAllShow = false;
-                    }
-                }
-            }
+          if(postil['isshow']){
+            d[rowIndex][colIndex].ps.isshow = false;
+            rc.push(allPs[i]);
+          }
         }
+      }
+      else{ //部分显示或全部隐藏，操作位显示所有批注
+        for(let i = 0; i < allPs.length; i++){
+          const rowIndex = allPs[i].split('_')[0];
+          const colIndex = allPs[i].split('_')[1];
 
-        let rc = [];
-        if(allPs.length > 0){
-            if(isAllShow){ //全部显示，操作为隐藏所有批注
-                $("#luckysheet-cell-main #luckysheet-postil-showBoxs").empty();
+          const postil = d[rowIndex][colIndex].ps;
 
-                for(let i = 0; i < allPs.length; i++){
-                    let rowIndex = allPs[i].split("_")[0];
-                    let colIndex = allPs[i].split("_")[1];
+          if(!postil['isshow']){
+            let row = Store.visibledatarow[rowIndex],
+              row_pre = rowIndex - 1 == -1 ? 0 : Store.visibledatarow[rowIndex - 1];
+            let col = Store.visibledatacolumn[colIndex],
+              col_pre = colIndex - 1 == -1 ? 0 : Store.visibledatacolumn[colIndex - 1];
 
-                    let postil = d[rowIndex][colIndex].ps;
+            const margeset = menuButton.mergeborer(Store.flowdata, rowIndex, colIndex);
+            if(margeset){
+              row = margeset.row[1];
+              row_pre = margeset.row[0];
 
-                    if(postil["isshow"]){
-                        d[rowIndex][colIndex].ps.isshow = false;
-                        rc.push(allPs[i]);
-                    }
-                }
+              col = margeset.column[1];
+              col_pre = margeset.column[0];
             }
-            else{ //部分显示或全部隐藏，操作位显示所有批注
-                for(let i = 0; i < allPs.length; i++){
-                    let rowIndex = allPs[i].split("_")[0];
-                    let colIndex = allPs[i].split("_")[1];
 
-                    let postil = d[rowIndex][colIndex].ps;
+            const scrollLeft = $('#luckysheet-cell-main').scrollLeft();
+            const scrollTop = $('#luckysheet-cell-main').scrollTop();
 
-                    if(!postil["isshow"]){
-                        let row = Store.visibledatarow[rowIndex], 
-                            row_pre = rowIndex - 1 == -1 ? 0 : Store.visibledatarow[rowIndex - 1];
-                        let col = Store.visibledatacolumn[colIndex], 
-                            col_pre = colIndex - 1 == -1 ? 0 : Store.visibledatacolumn[colIndex - 1];
+            let toX = col;
+            let toY = row_pre;
 
-                        let margeset = menuButton.mergeborer(Store.flowdata, rowIndex, colIndex);
-                        if(!!margeset){
-                            row = margeset.row[1];
-                            row_pre = margeset.row[0];
-                            
-                            col = margeset.column[1];
-                            col_pre = margeset.column[0];
-                        }
+            if(luckysheetFreezen.freezenverticaldata != null && toX < (luckysheetFreezen.freezenverticaldata[0] - luckysheetFreezen.freezenverticaldata[2])){
+              toX += scrollLeft;
+            }
+            if(luckysheetFreezen.freezenhorizontaldata != null && toY < (luckysheetFreezen.freezenhorizontaldata[0] - luckysheetFreezen.freezenhorizontaldata[2])){
+              toY += scrollTop;
+            }
 
-                        let scrollLeft = $("#luckysheet-cell-main").scrollLeft();
-                        let scrollTop = $("#luckysheet-cell-main").scrollTop();
-            
-                        let toX = col;
-                        let toY = row_pre;
-            
-                        if(luckysheetFreezen.freezenverticaldata != null && toX < (luckysheetFreezen.freezenverticaldata[0] - luckysheetFreezen.freezenverticaldata[2])){
-                            toX += scrollLeft;
-                        }
-                        if(luckysheetFreezen.freezenhorizontaldata != null && toY < (luckysheetFreezen.freezenhorizontaldata[0] - luckysheetFreezen.freezenhorizontaldata[2])){
-                            toY += scrollTop;
-                        }
+            const left = postil['left'] == null ? toX + 18 * Store.zoomRatio : postil['left'] * Store.zoomRatio;
+            let top = postil['top'] == null ? toY - 18 * Store.zoomRatio : postil['top'] * Store.zoomRatio;
+            const width = postil['width'] == null ? _this.defaultWidth * Store.zoomRatio : postil['width'] * Store.zoomRatio;
+            const height = postil['height'] == null ? _this.defaultHeight * Store.zoomRatio : postil['height'] * Store.zoomRatio;
+            const value = postil['value'] == null ? '' : postil['value'];
 
-                        let left = postil["left"] == null ? toX + 18 * Store.zoomRatio : postil["left"] * Store.zoomRatio;
-                        let top = postil["top"] == null ? toY - 18 * Store.zoomRatio : postil["top"] * Store.zoomRatio;
-                        let width = postil["width"] == null ? _this.defaultWidth * Store.zoomRatio : postil["width"] * Store.zoomRatio;
-                        let height = postil["height"] == null ? _this.defaultHeight * Store.zoomRatio : postil["height"] * Store.zoomRatio;
-                        let value = postil["value"] == null ? "" : postil["value"];
+            if(top < 0){
+              top = 2;
+            }
 
-                        if(top < 0){
-                            top = 2;
-                        }
+            const size = _this.getArrowCanvasSize(left, top, toX, toY);
 
-                        let size = _this.getArrowCanvasSize(left, top, toX, toY);
+            let commentDivs = '';
+            const valueLines = value.split('\n');
+            for (const line of valueLines) {
+              commentDivs += `<div>${  _this.htmlEscape(line)  }</div>`;
+            }
 
-                        let commentDivs = '';
-                        let valueLines = value.split('\n');
-                        for (let line of valueLines) {
-                            commentDivs += '<div>' + _this.htmlEscape(line) + '</div>';
-                        }
-
-                        let html =  '<div id="luckysheet-postil-show_'+ rowIndex +'_'+ colIndex +'" class="luckysheet-postil-show">' +
-                                        '<canvas class="arrowCanvas" width="'+ size[2] +'" height="'+ size[3] +'" style="position:absolute;left:'+ size[0] +'px;top:'+ size[1] +'px;z-index:100;pointer-events:none;"></canvas>' +
-                                        '<div class="luckysheet-postil-show-main" style="width:'+ width +'px;height:'+ height +'px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:'+ left +'px;top:'+ top +'px;box-sizing:border-box;z-index:100;">' +
+            const html =  `<div id="luckysheet-postil-show_${ rowIndex }_${ colIndex }" class="luckysheet-postil-show">` +
+                                        `<canvas class="arrowCanvas" width="${ size[2] }" height="${ size[3] }" style="position:absolute;left:${ size[0] }px;top:${ size[1] }px;z-index:100;pointer-events:none;"></canvas>` +
+                                        `<div class="luckysheet-postil-show-main" style="width:${ width }px;height:${ height }px;color:#000;padding:5px;border:1px solid #000;background-color:rgb(255,255,225);position:absolute;left:${ left }px;top:${ top }px;box-sizing:border-box;z-index:100;">` +
                                             '<div class="luckysheet-postil-dialog-move">' +
                                                 '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-t" data-type="t"></div>' +
                                                 '<div class="luckysheet-postil-dialog-move-item luckysheet-postil-dialog-move-item-r" data-type="r"></div>' +
@@ -836,145 +835,145 @@ const luckysheetPostil = {
                                                 '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-mb" data-type="mb"></div>' +
                                                 '<div class="luckysheet-postil-dialog-resize-item luckysheet-postil-dialog-resize-item-rb" data-type="rb"></div>' +
                                             '</div>' +
-                                            '<div style="width:100%;height:100%;overflow:hidden;">' + 
-                                                '<div class="formulaInputFocus" style="width:'+ (width - 12) +'px;height:'+ (height - 12) +'px;line-height:20px;box-sizing:border-box;text-align: center;;word-break:break-all;" spellcheck="false" contenteditable="true">' +
-                                                    commentDivs +
-                                                '</div>' +
+                                            '<div style="width:100%;height:100%;overflow:hidden;">' +
+                                                `<div class="formulaInputFocus" style="width:${ width - 12 }px;height:${ height - 12 }px;line-height:20px;box-sizing:border-box;text-align: center;;word-break:break-all;" spellcheck="false" contenteditable="true">${
+                                                  commentDivs
+                                                }</div>` +
                                             '</div>' +
                                         '</div>' +
                                     '</div>';
 
-                        $(html).appendTo($("#luckysheet-cell-main #luckysheet-postil-showBoxs"));
+            $(html).appendTo($('#luckysheet-cell-main #luckysheet-postil-showBoxs'));
 
-                        let ctx = $("#luckysheet-postil-show_"+ rowIndex +"_"+ colIndex +" .arrowCanvas").get(0).getContext("2d");
+            const ctx = $(`#luckysheet-postil-show_${ rowIndex }_${ colIndex } .arrowCanvas`).get(0).getContext('2d');
 
-                        _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
+            _this.drawArrow(ctx, size[4], size[5], size[6], size[7]);
 
-                        d[rowIndex][colIndex].ps.isshow = true;
-                        rc.push(allPs[i]);
-                    }
-                }
-            }
+            d[rowIndex][colIndex].ps.isshow = true;
+            rc.push(allPs[i]);
+          }
         }
-
-        _this.ref(d, rc);
-        _this.init();
-    },
-    removeActivePs: function(){
-        if($("#luckysheet-postil-showBoxs .luckysheet-postil-show-active").length > 0){
-            
-
-            let id = $("#luckysheet-postil-showBoxs .luckysheet-postil-show-active").attr("id");
-            let r = id.split("luckysheet-postil-show_")[1].split("_")[0];
-            let c = id.split("luckysheet-postil-show_")[1].split("_")[1];
-
-            // interpret <div> as new line
-            let value = $("#" + id).find(".formulaInputFocus").html().replaceAll('<div>', '\n').replaceAll(/<(.*)>.*?|<(.*) \/>/g, '').trim();
-            // Hook function
-            if(!method.createHookFunction('commentUpdateBefore',r,c,value)){
-                if (!Store.flowdata[r][c].ps.isshow) {
-                    $("#" + id).remove();
-                }
-                return;
-            }
-
-            const previousCell = $.extend(true,{},Store.flowdata[r][c]);
-
-            $("#" + id).removeClass("luckysheet-postil-show-active");
-            $("#" + id).find(".luckysheet-postil-dialog-resize").hide();
-            $("#" + id).find(".arrowCanvas").css("z-index", 100);
-            $("#" + id).find(".luckysheet-postil-show-main").css("z-index", 100);
-
-            let d = editor.deepCopyFlowData(Store.flowdata);
-            let rc = [];
-
-            d[r][c].ps.value = value;
-            rc.push(r + "_" + c);
-
-            this.ref(d, rc);
-
-            if(!d[r][c].ps.isshow){
-                $("#" + id).remove();
-            }
-            // Hook function
-            setTimeout(() => {
-                method.createHookFunction('commentUpdateAfter',r,c, previousCell, d[r][c])
-            }, 0);
-        }
-    },
-    ref: function(data, rc){
-        if (Store.clearjfundo) {
-            Store.jfundo.length  = 0;
-            
-            Store.jfredo.push({ 
-                "type": "postil", 
-                "data": Store.flowdata, 
-                "curdata": data, 
-                "sheetIndex": Store.currentSheetIndex,
-                "rc": rc 
-            });
-        }
-
-        //flowdata
-        Store.flowdata = data;
-        editor.webWorkerFlowDataCache(Store.flowdata);//worker存数据
-
-        Store.luckysheetfile[getSheetIndex(Store.currentSheetIndex)].data = Store.flowdata;
-        // formula.execFunctionGroupData = Store.flowdata;
-
-        //共享编辑模式
-        if(server.allowUpdate){
-            for(let i = 0; i < rc.length; i++){
-                let r = rc[i].split("_")[0];
-                let c = rc[i].split("_")[1];
-
-                server.saveParam("v", Store.currentSheetIndex, Store.flowdata[r][c], { "r": r, "c": c });
-            }
-        }
-        
-        //刷新表格
-        setTimeout(function () {
-            luckysheetrefreshgrid();
-        }, 1);
-    },
-    positionSync: function(){
-        let _this = this;
-
-        $("#luckysheet-postil-showBoxs .luckysheet-postil-show").each(function(i, e){
-            let id = $(e).attr("id");
-
-            let r = id.split("luckysheet-postil-show_")[1].split("_")[0];
-            let c = id.split("luckysheet-postil-show_")[1].split("_")[1];
-
-            let cell = Store.flowdata[r][c];
-            
-            if(cell != null && cell.ps != null){
-                _this.buildPs(r, c, cell.ps);
-            }
-            else{
-                $("#" + id).hide();
-            }
-        });
-    },
-    htmlEscape: function(text){
-        return text.replace(/[<>"&]/g, function(match, pos, originalText){
-            console.log(match, pos, originalText)
-            switch(match){
-                case '<': {
-                    return '&lt';
-                }
-                case '>': {
-                    return '&gt';
-                }
-                case '&': {
-                    return '&amp';
-                }
-                case '\"': {
-                    return '&quot;';
-                }
-            }
-        })
+      }
     }
-}
+
+    _this.ref(d, rc);
+    _this.init();
+  },
+  removeActivePs: function(){
+    if($('#luckysheet-postil-showBoxs .luckysheet-postil-show-active').length > 0){
+
+
+      const id = $('#luckysheet-postil-showBoxs .luckysheet-postil-show-active').attr('id');
+      const r = id.split('luckysheet-postil-show_')[1].split('_')[0];
+      const c = id.split('luckysheet-postil-show_')[1].split('_')[1];
+
+      // interpret <div> as new line
+      const value = $(`#${  id}`).find('.formulaInputFocus').html().replaceAll('<div>', '\n').replaceAll(/<(.*)>.*?|<(.*) \/>/g, '').trim();
+      // Hook function
+      if(!method.createHookFunction('commentUpdateBefore',r,c,value)){
+        if (!Store.flowdata[r][c].ps.isshow) {
+          $(`#${  id}`).remove();
+        }
+        return;
+      }
+
+      const previousCell = $.extend(true,{},Store.flowdata[r][c]);
+
+      $(`#${  id}`).removeClass('luckysheet-postil-show-active');
+      $(`#${  id}`).find('.luckysheet-postil-dialog-resize').hide();
+      $(`#${  id}`).find('.arrowCanvas').css('z-index', 100);
+      $(`#${  id}`).find('.luckysheet-postil-show-main').css('z-index', 100);
+
+      const d = editor.deepCopyFlowData(Store.flowdata);
+      const rc = [];
+
+      d[r][c].ps.value = value;
+      rc.push(`${r  }_${  c}`);
+
+      this.ref(d, rc);
+
+      if(!d[r][c].ps.isshow){
+        $(`#${  id}`).remove();
+      }
+      // Hook function
+      setTimeout(() => {
+        method.createHookFunction('commentUpdateAfter',r,c, previousCell, d[r][c]);
+      }, 0);
+    }
+  },
+  ref: function(data, rc){
+    if (Store.clearjfundo) {
+      Store.jfundo.length  = 0;
+
+      Store.jfredo.push({
+        'type': 'postil',
+        'data': Store.flowdata,
+        'curdata': data,
+        'sheetIndex': Store.currentSheetIndex,
+        'rc': rc
+      });
+    }
+
+    //flowdata
+    Store.flowdata = data;
+    editor.webWorkerFlowDataCache(Store.flowdata);//worker存数据
+
+    Store.luckysheetfile[getSheetIndex(Store.currentSheetIndex)].data = Store.flowdata;
+    // formula.execFunctionGroupData = Store.flowdata;
+
+    //共享编辑模式
+    if(server.allowUpdate){
+      for(let i = 0; i < rc.length; i++){
+        const r = rc[i].split('_')[0];
+        const c = rc[i].split('_')[1];
+
+        server.saveParam('v', Store.currentSheetIndex, Store.flowdata[r][c], { 'r': r, 'c': c });
+      }
+    }
+
+    //刷新表格
+    setTimeout(function () {
+      luckysheetrefreshgrid();
+    }, 1);
+  },
+  positionSync: function(){
+    const _this = this;
+
+    $('#luckysheet-postil-showBoxs .luckysheet-postil-show').each(function(i, e){
+      const id = $(e).attr('id');
+
+      const r = id.split('luckysheet-postil-show_')[1].split('_')[0];
+      const c = id.split('luckysheet-postil-show_')[1].split('_')[1];
+
+      const cell = Store.flowdata[r][c];
+
+      if(cell != null && cell.ps != null){
+        _this.buildPs(r, c, cell.ps);
+      }
+      else{
+        $(`#${  id}`).hide();
+      }
+    });
+  },
+  htmlEscape: function(text){
+    return text.replace(/[<>"&]/g, function(match, pos, originalText){
+      console.log(match, pos, originalText);
+      switch(match){
+      case '<': {
+        return '&lt';
+      }
+      case '>': {
+        return '&gt';
+      }
+      case '&': {
+        return '&amp';
+      }
+      case '\"': {
+        return '&quot;';
+      }
+      }
+    });
+  }
+};
 
 export default luckysheetPostil;
