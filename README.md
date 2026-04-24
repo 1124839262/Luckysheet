@@ -116,16 +116,16 @@ Create a table
 
 ### Installation
 ```
-npm install
-npm install gulp -g
+pnpm install
+pnpm install gulp -g
 ```
 ### Development
 ```
-npm run dev
+pnpm run dev
 ```
 ### Package
 ```
-npm run build
+pnpm run build
 ```
 
 ## Partner project

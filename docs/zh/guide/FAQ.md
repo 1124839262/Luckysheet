@@ -291,7 +291,7 @@ luckysheet.setRangeShow("A2",{show:false})
 
 ## 右键事件绑定在哪？
 
-**<span style="font-size:20px;">A</span>**：在源码的 [src/controllers/hander.js](https://github.com/mengshukeji/Luckysheet/blob/master/src/controllers/handler.js) 搜索`event.which == "3"`即可找到右键事件触发执行的代码。
+**<span style="font-size:20px;">A</span>**：在源码的 [src/controllers/hander.js](https://github.com/mengshukeji/Luckysheet/blob/master/src/controllers/handler.js) 搜索`event.which === "3"`即可找到右键事件触发执行的代码。
 
 ------------
 

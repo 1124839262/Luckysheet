@@ -1,1 +1,23 @@
-src
+# 依赖目录
+node_modules/
+
+# 构建产物
+dist/
+build/
+
+# 文档
+docs/
+
+# 压缩文件
+*.min.js
+*.bundle.js
+
+# 配置文件
+coverage/
+.vscode/
+.idea/
+
+# 临时文件
+*.log
+.DS_Store
+Thumbs.db

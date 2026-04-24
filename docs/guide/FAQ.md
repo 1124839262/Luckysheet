@@ -291,7 +291,7 @@ luckysheet.setRangeShow("A2",{show:false})
 
 ## Where is the right-click event bound?
 
-**<span style="font-size:20px;">A</span>**: In the source code [src/controllers/hander.js](https://github.com/mengshukeji/Luckysheet/blob/master/src/controllers/handler.js), search for `event.which == "3"` to find the code executed by the right-click event.
+**<span style="font-size:20px;">A</span>**: In the source code [src/controllers/hander.js](https://github.com/mengshukeji/Luckysheet/blob/master/src/controllers/handler.js), search for `event.which === "3"` to find the code executed by the right-click event.
 
 ------------
 
