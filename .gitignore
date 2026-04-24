@@ -1,12 +1,15 @@
-.DS_Store
-node_modules
-package-lock.json
-yarn.lock
-dist
-docs/.vuepress/dist
-src/expendPlugins/print/print.js
+```
+# Dependencies
+node_modules/
 
-.idea
-.history
-.vs
-.vscode
+# Environment
+.env
+.env.local
+.env.*
+
+# Editors
+.vscode/
+
+# Logs
+*.log
+```
