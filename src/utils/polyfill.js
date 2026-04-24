@@ -1,46 +1,48 @@
-    /**
-     * polyfill event in firefox
-     */
-	function __firefox(){
-        HTMLElement.prototype.__defineGetter__("runtimeStyle", __element_style);
-        window.constructor.prototype.__defineGetter__("event", __window_event);
-        Event.prototype.__defineGetter__("srcElement", __event_srcElement);
-    }
+/**
+ * polyfill event for modern browsers (replaced old IE / Firefox legacy code)
+ */
+function __firefox() {
+  // 替换 __defineGetter__ 废弃写法 → 现代 Object.defineProperty
+  if (!HTMLElement.prototype.runtimeStyle) {
+    Object.defineProperty(HTMLElement.prototype, 'runtimeStyle', {
+      get: __element_style
+    });
+  }
 
-    function __element_style(){
-        return this.style;
-    }
+  if (!window.event) {
+    Object.defineProperty(window, 'event', {
+      get: __window_event
+    });
+  }
 
-    function __window_event(){
-        return __window_event_constructor();
-    }
+  if (!Event.prototype.srcElement) {
+    Object.defineProperty(Event.prototype, 'srcElement', {
+      get: __event_srcElement
+    });
+  }
+}
 
-    function __event_srcElement(){
-        return this.target;
-    }
+function __element_style() {
+  return this.style;
+}
 
-    function __window_event_constructor(){
-        if(document.all){
-            return window.event;
-        }
+function __window_event() {
+  return __window_event_constructor();
+}
 
-        var _caller = __window_event_constructor.caller;
-        
-        while(_caller != null){
-            var _argument = _caller.arguments[0];
+function __event_srcElement() {
+  return this.target;
+}
 
-            if(_argument){
-                var _temp = _argument.constructor;
-                
-                if(_temp.toString().indexOf("Event") != -1){
-                    return _argument;
-                }
-            }
+// ========== 核心修复：移除 arguments / caller ==========
+function __window_event_constructor(e) {
+  // 现代标准方式：优先从调用参数获取
+  if (e instanceof Event) {return e;}
 
-            _caller = _caller.caller;
-        }
+  // 兼容旧 IE
+  if (window.event) {return window.event;}
 
-        return null;
-    }
+  return null;
+}
 
-    export default __firefox;
+export default __firefox;
