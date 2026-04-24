@@ -33,12 +33,12 @@ import {hideMenuByCancel} from '../global/cursorPos';
 import {getluckysheetfile, getRangetxt, getSheetIndex} from '../methods/get';
 import {setluckysheetfile} from '../methods/set';
 import {
-    convertCssToStyleList,
-    inlineStyleAffectAttribute,
-    isInlineStringCell,
-    isInlineStringCT,
-    updateInlineStringFormat,
-    updateInlineStringFormatOutside,
+  convertCssToStyleList,
+  inlineStyleAffectAttribute,
+  isInlineStringCell,
+  isInlineStringCT,
+  updateInlineStringFormat,
+  updateInlineStringFormatOutside,
 } from './inlineString';
 import {getObjType, luckysheetContainerFocus, mouseclickposition, replaceHtml,} from '../utils/util';
 import {checkProtectionFormatCells, checkProtectionNotEnable, openProtectionModal} from './protection';

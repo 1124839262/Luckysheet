@@ -1,12 +1,12 @@
 import {getRangetxt, getSheetIndex} from '../methods/get';
 import {
-    ABCatNum,
-    getObjType,
-    mouseclickposition,
-    numfloatlen,
-    numFormat,
-    replaceHtml,
-    showrightclickmenu,
+  ABCatNum,
+  getObjType,
+  mouseclickposition,
+  numfloatlen,
+  numFormat,
+  replaceHtml,
+  showrightclickmenu,
 } from '../utils/util';
 import {datagridgrowth, getcellvalue, getdatabyselectionD} from '../global/getdata';
 import {diff, isdatatype, isdatatypemulti, isdatetime} from '../global/datecontroll';
@@ -22,12 +22,12 @@ import analysis from '../global/analysis';
 import {selectHightlightShow} from './select';
 import {luckysheet_searcharray} from './sheetSearch';
 import {
-    filtermenuHTML,
-    filtersubmenuHTML,
-    luckysheetPivotTableHTML,
-    modelHTML,
-    pivottableconfigHTML,
-    pivottablesumHTML,
+  filtermenuHTML,
+  filtersubmenuHTML,
+  luckysheetPivotTableHTML,
+  modelHTML,
+  pivottableconfigHTML,
+  pivottablesumHTML,
 } from './constant';
 import sheetmanage from './sheetmanage';
 import luckysheetsizeauto from './resize';

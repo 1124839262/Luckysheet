@@ -24,23 +24,23 @@ import splitColumn from './splitColumn';
 import {hideMenuByCancel} from '../global/cursorPos';
 import {luckysheetdefaultstyle} from './constant';
 import {
-    checkProtectionAllSelected,
-    checkProtectionAuthorityNormal,
-    checkProtectionLockedRangeList,
-    checkProtectionNotEnable,
-    checkProtectionSelectLockedOrUnLockedCells,
+  checkProtectionAllSelected,
+  checkProtectionAuthorityNormal,
+  checkProtectionLockedRangeList,
+  checkProtectionNotEnable,
+  checkProtectionSelectLockedOrUnLockedCells,
 } from './protection';
 import {openCellFormatModel} from './cellFormat';
 
 import {
-    $$,
-    ArrayUnique,
-    chatatABC,
-    getObjType,
-    luckysheetactiveCell,
-    luckysheetContainerFocus,
-    replaceHtml,
-    showrightclickmenu,
+  $$,
+  ArrayUnique,
+  chatatABC,
+  getObjType,
+  luckysheetactiveCell,
+  luckysheetContainerFocus,
+  replaceHtml,
+  showrightclickmenu,
 } from '../utils/util';
 import {getRangetxt, getSheetIndex} from '../methods/get';
 import {colLocation, mouseposition, rowLocation} from '../global/location';

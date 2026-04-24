@@ -5,10 +5,10 @@ import server from './server';
 import {luckysheetupdateCell, setCenterInputPosition} from './updateCell';
 import {keycode} from './constant';
 import {
-    luckysheetMoveHighlightCell,
-    luckysheetMoveHighlightCell2,
-    luckysheetMoveHighlightRange,
-    luckysheetMoveHighlightRange2
+  luckysheetMoveHighlightCell,
+  luckysheetMoveHighlightCell2,
+  luckysheetMoveHighlightRange,
+  luckysheetMoveHighlightRange2
 } from './sheetMove';
 import {selectHightlightShow, selectIsOverlap} from './select';
 import selection from './selection';

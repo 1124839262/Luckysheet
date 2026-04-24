@@ -20,9 +20,9 @@ import {getCellTextInfo} from '../global/getRowlen';
 import {luckysheet_searcharray} from '../controllers/sheetSearch';
 import {isInlineStringCell} from './inlineString';
 import {
-    checkProtectionAllSelected,
-    checkProtectionAuthorityNormal,
-    checkProtectionLockedRangeList,
+  checkProtectionAllSelected,
+  checkProtectionAuthorityNormal,
+  checkProtectionLockedRangeList,
 } from './protection';
 import Store from '../store';
 import luckysheetConfigsetting from './luckysheetConfigsetting';

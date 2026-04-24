@@ -39,9 +39,9 @@ const SPFormat = createClass({
   },
 
   render: function (fieldset, lookups, options) {
-    let self = this,
-      fields = fieldset,
-      match, token, lookupkey, fieldvalue, prec;
+    const self = this,
+      fields = fieldset;
+    let match, token, lookupkey, fieldvalue, prec;
     return this.format.replace(this.fre, function () {
       let lookup;
       token = arguments[1];
@@ -129,7 +129,7 @@ const normalizeValue = function (val) {
     break;
   default:
     nf = parseFloat(val);
-    if (val == nf) {
+    if (val === nf) {
       val = nf;
     }
   }
@@ -137,7 +137,7 @@ const normalizeValue = function (val) {
 };
 
 const normalizeValues = function (vals) {
-  let i, result = [];
+  let i; const result = [];
   for (i = vals.length; i--;) {
     result[i] = normalizeValue(vals[i]);
   }
@@ -166,7 +166,7 @@ const sum = function (vals) {
 };
 
 const remove = function (vals, filter) {
-  let i, vl, result = [];
+  let i, vl; const result = [];
   for (i = 0, vl = vals.length; i < vl; i++) {
     if (vals[i] !== filter) {
       result.push(vals[i]);
@@ -199,9 +199,9 @@ const formatNumber = function (num, prec, groupsize, groupsep, decsep) {
 
 const RangeMap = createClass({
   init: function (map) {
-    let key, range, rangelist = [];
+    let key, range;const rangelist = [];
     for (key in map) {
-      if (map.hasOwnProperty(key) && typeof key === 'string' && key.indexOf(':') > -1) {
+      if (Object.prototype.hasOwnProperty.call(map,key) && typeof key === 'string' && key.indexOf(':') > -1) {
         range = key.split(':');
         range[0] = range[0].length === 0 ? -Infinity : parseFloat(range[0]);
         range[1] = range[1].length === 0 ? Infinity : parseFloat(range[1]);
@@ -214,8 +214,8 @@ const RangeMap = createClass({
   },
 
   get: function (value) {
-    let rangelist = this.rangelist,
-      i, range, result;
+    const rangelist = this.rangelist;
+    let i, range, result;
     if ((result = this.map[value]) !== undefined) {
       return result;
     }
@@ -389,11 +389,12 @@ const luckysheetSparkline = {
       this.yminmax = [];
       this.hightlightSpotId = null;
       this.lastShapeId = null;
+      this.currentRegion = undefined;
       //this.initTarget();
     },
     getRegion: function (el, x, y) {
-      let i,
-        regionMap = this.regionMap; // maps regions to value positions
+      let i;
+      const regionMap = this.regionMap; // maps regions to value positions
       for (i = regionMap.length; i--;) {
         if (regionMap[i] !== null && x >= regionMap[i][0] && x <= regionMap[i][1]) {
           return regionMap[i][2];
@@ -413,14 +414,14 @@ const luckysheetSparkline = {
       };
     },
     renderHighlight: function () {
-      let currentRegion = this.currentRegion,
-        target = this.target,
-        vertex = this.vertices[currentRegion],
-        options = this.options,
-        spotRadius = options.get('spotRadius'),
-        highlightSpotColor = options.get('highlightSpotColor'),
-        highlightLineColor = options.get('highlightLineColor'),
-        highlightSpot, highlightLine;
+      const currentRegion = this.currentRegion;
+      const target = this.target;
+      const vertex = this.vertices[currentRegion];
+      const options = this.options;
+      const spotRadius = options.get('spotRadius');
+      const highlightSpotColor = options.get('highlightSpotColor');
+      const highlightLineColor = options.get('highlightLineColor');
+      let highlightSpot, highlightLine;
 
       if (!vertex) {
         return;
@@ -450,12 +451,12 @@ const luckysheetSparkline = {
       }
     },
     scanValues: function () {
-      let values = this.values,
-        valcount = values.length,
-        xvalues = this.xvalues,
-        yvalues = this.yvalues,
-        yminmax = this.yminmax,
-        i, val, isStr, isArray, sp;
+      const values = this.values,
+        valcount = values.length;
+      let xvalues = this.xvalues;
+      const yvalues = this.yvalues,
+        yminmax = this.yminmax;
+      let i, val, isStr, isArray, sp;
       for (i = 0; i < valcount; i++) {
         val = values[i];
         isStr = typeof(values[i]) === 'string';
@@ -522,12 +523,12 @@ const luckysheetSparkline = {
 
     },
     drawNormalRange: function (canvasLeft, canvasTop, canvasHeight, canvasWidth, rangey) {
-      let normalRangeMin = this.options.get('normalRangeMin'),
+      const normalRangeMin = this.options.get('normalRangeMin'),
         normalRangeMax = this.options.get('normalRangeMax'),
-        ytop = canvasTop + Math.round(canvasHeight - (canvasHeight * ((normalRangeMax - this.miny) / rangey))),
-        height = Math.round((canvasHeight * (normalRangeMax - normalRangeMin)) / rangey);
+        ytop = canvasTop + Math.round(canvasHeight - (canvasHeight * ((normalRangeMax - this.miny) / rangey)));
+      let height = Math.round((canvasHeight * (normalRangeMax - normalRangeMin)) / rangey);
       //(x1, y1, x2, y2, lineColor, lineWidth)
-      if(height==0 && normalRangeMin==normalRangeMax){
+      if(height===0 && normalRangeMin===normalRangeMax){
         height=1;
       }
       this.target.drawRect(canvasLeft, ytop, canvasWidth, height, undefined, this.options.get('normalRangeColor')).append();
@@ -543,20 +544,19 @@ const luckysheetSparkline = {
 
       this.values = userValues;
 
-      let options = this.options,
+      const options = this.options,
         target = this.target,
 
-        canvasWidth = el.mergedOptions.width,
-        canvasHeight = el.mergedOptions.height,
 
         vertices = this.vertices,
-        spotRadius = options.get('spotRadius'),
-        regionMap = this.regionMap,
-        rangex, rangey, yvallast,
+        regionMap = this.regionMap;
+      let spotRadius = options.get('spotRadius'),
+        canvasHeight = el.mergedOptions.height,
+        canvasWidth = el.mergedOptions.width,
         canvasTop, canvasLeft,
-        vertex, path, paths, x, y, xnext, xpos, xposnext,
-        last, next, yvalcount, lineShapes, fillShapes, plen,
-        valueSpots, hlSpotsEnabled, color, xvalues, yvalues, i;
+        vertex, path, x, y, xnext, xpos, xposnext,
+        last, next, plen,
+        valueSpots, hlSpotsEnabled, color, i;
 
       // if (!line._super.render.call(this)) {
       //     return;
@@ -565,8 +565,8 @@ const luckysheetSparkline = {
       this.scanValues();
       this.processRangeOptions();
 
-      xvalues = this.xvalues;
-      yvalues = this.yvalues;
+      const xvalues = this.xvalues;
+      const yvalues = this.yvalues;
 
       if (!this.yminmax.length || this.yvalues.length < 2) {
         // empty or all null valuess
@@ -575,9 +575,9 @@ const luckysheetSparkline = {
 
       canvasTop = canvasLeft = 0;
 
-      rangex = this.maxx - this.minx === 0 ? 1 : this.maxx - this.minx;
-      rangey = this.maxy - this.miny === 0 ? 1 : this.maxy - this.miny;
-      yvallast = this.yvalues.length - 1;
+      const rangex = this.maxx - this.minx === 0 ? 1 : this.maxx - this.minx;
+      const rangey = this.maxy - this.miny === 0 ? 1 : this.maxy - this.miny;
+      const yvallast = this.yvalues.length - 1;
 
       if (spotRadius && (canvasWidth < (spotRadius * 4) || canvasHeight < (spotRadius * 4))) {
         spotRadius = 0;
@@ -612,9 +612,9 @@ const luckysheetSparkline = {
       }
 
       path = [];
-      paths = [path];
+      const paths = [path];
       last = next = null;
-      yvalcount = yvalues.length;
+      const yvalcount = yvalues.length;
       for (i = 0; i < yvalcount; i++) {
         x = xvalues[i];
         xnext = xvalues[i + 1];
@@ -649,8 +649,8 @@ const luckysheetSparkline = {
         }
       }
 
-      lineShapes = [];
-      fillShapes = [];
+      const lineShapes = [];
+      const fillShapes = [];
       plen = paths.length;
       for (i = 0; i < plen; i++) {
         path = paths[i];
@@ -738,21 +738,21 @@ const luckysheetSparkline = {
 
     init: function (el, values) {
       const options = this.options;
-      const width = el.mergedOptions.height;
-      const height = el.mergedOptions.width;
+      const width = el.mergedOptions.width;
+      const height = el.mergedOptions.height;
 
-      this.canvasWidth = el.mergedOptions.height;
-      this.canvasHeight = el.mergedOptions.width;
+      this.canvasWidth = el.mergedOptions.width;
+      this.canvasHeight = el.mergedOptions.height;
 
-      let barWidth = parseInt(options.get('barWidth'), 10),
+      const barWidth = parseInt(options.get('barWidth'), 10),
         barSpacing = parseInt(options.get('barSpacing'), 10),
         chartRangeMin = options.get('chartRangeMin'),
         chartRangeMax = options.get('chartRangeMax'),
-        chartRangeClip = options.get('chartRangeClip'),
+        chartRangeClip = options.get('chartRangeClip');
+      let isStackString, groupMin, groupMax,
         stackMin = Infinity,
         stackMax = -Infinity,
-        isStackString, groupMin, groupMax, stackRanges,
-        numValues, i, vlen, range, zeroAxis, xaxisOffset, min, max, clipMin, clipMax,
+        i, vlen, zeroAxis, xaxisOffset, min, max, clipMin, clipMax,
         stacked, vlist, j, slen, svals, val, yoffset, yMaxCalc, canvasHeightEf;
       //bar._super.init.call(this, el, values, options, width, height);
 
@@ -793,8 +793,8 @@ const luckysheetSparkline = {
         clipMax = chartRangeMax === undefined ? Infinity : chartRangeMax;
       }
 
-      numValues = [];
-      stackRanges = stacked ? [] : numValues;
+      const numValues = [];
+      const stackRanges = stacked ? [] : numValues;
       const stackTotals = [];
       const stackRangesNeg = [];
       for (i = 0, vlen = values.length; i < vlen; i++) {
@@ -845,7 +845,7 @@ const luckysheetSparkline = {
       this.zeroAxis = zeroAxis = options.get('zeroAxis', true);
       if (min <= 0 && max >= 0 && zeroAxis) {
         xaxisOffset = 0;
-      } else if (zeroAxis == false) {
+      } else if (zeroAxis === false) {
         xaxisOffset = min;
       } else if (min > 0) {
         xaxisOffset = 0;
@@ -854,7 +854,7 @@ const luckysheetSparkline = {
       }
       this.xaxisOffset = xaxisOffset;
 
-      range = stacked ? (Math.max.apply(Math, stackRanges) + Math.max.apply(Math, stackRangesNeg)) : max - xaxisOffset;
+      const range = stacked ? (Math.max.apply(Math, stackRanges) + Math.max.apply(Math, stackRangesNeg)) : max - xaxisOffset;
 
       // as we plot zero/min values a single pixel line, we add a pixel to all other
       // values - Reduce the effective canvas size to suit
@@ -894,10 +894,10 @@ const luckysheetSparkline = {
     },
 
     getCurrentRegionFields: function () {
-      let currentRegion = this.currentRegion,
+      const currentRegion = this.currentRegion,
         values = ensureArray(this.values[currentRegion]),
-        result = [],
-        value, i;
+        result = [];
+      let value, i;
       for (i = values.length; i--;) {
         value = values[i];
         result.push({
@@ -911,10 +911,10 @@ const luckysheetSparkline = {
     },
 
     calcColor: function (stacknum, value, valuenum) {
-      let colorMapByIndex = this.colorMapByIndex,
+      const colorMapByIndex = this.colorMapByIndex,
         colorMapByValue = this.colorMapByValue,
-        options = this.options,
-        color, newColor;
+        options = this.options;
+      let color, newColor;
       if (this.stacked) {
         color = options.get('stackedBarColor');
       } else {
@@ -935,23 +935,22 @@ const luckysheetSparkline = {
          * Render bar(s) for a region
          */
     renderRegion: function (valuenum, highlight) {
-      let vals = this.values[valuenum],
-        options = this.options,
+      let vals = this.values[valuenum];
+      const options = this.options,
         xaxisOffset = this.xaxisOffset,
         result = [],
         range = this.range,
         stacked = this.stacked,
         target = this.target,
-        x = valuenum * this.totalBarWidth,
-        canvasHeightEf = this.canvasHeightEf,
-        yoffset = this.yoffset,
-        y, height, color, isNull, yoffsetNeg, i, valcount, val, minPlotted, allMin;
-
+        x = valuenum * this.totalBarWidth;
+      let y, height, color, yoffsetNeg, i, val,
+        canvasHeightEf = this.canvasHeightEf,minPlotted,
+        yoffset = this.yoffset;
       vals = $.isArray(vals) ? vals : [vals];
-      valcount = vals.length;
+      const valcount = vals.length;
       val = vals[0];
-      isNull = all(null, vals);
-      allMin = all(xaxisOffset, vals, true);
+      const isNull = all(null, vals);
+      const allMin = all(xaxisOffset, vals, true);
 
       if (isNull) {
         if (options.get('nullColor')) {
@@ -1006,7 +1005,20 @@ const luckysheetSparkline = {
         return result[0];
       }
       return result;
-    }
+    },
+    calcHighlightColor(color, options) {
+      if (!color) {return '#cccccc';}
+      // 简单提亮 15%，图表高亮最常用效果
+      return color.replace(/^#?([0-9a-f]{6}|[0-9a-f]{3})$/i, (_, c) => {
+        const rgb = c.length === 3
+          ? [c[0]+c[0], c[1]+c[1], c[2]+c[2]]
+          : [c[0]+c[1], c[2]+c[3], c[4]+c[5]];
+        return `#${  rgb.map(x => {
+          const num = parseInt(x, 16);
+          return Math.min(255, num + 30).toString(16).padStart(2, '0');
+        }).join('')}`;
+      });
+    },
   },
   column:{
     type: 'column',
@@ -1019,15 +1031,16 @@ const luckysheetSparkline = {
       this.canvasWidth = el.mergedOptions.width;
       this.canvasHeight = el.mergedOptions.height;
 
-      let barWidth = parseInt(options.get('barWidth'), 10),
+      const barWidth = parseInt(options.get('barWidth'), 10),
         barSpacing = parseInt(options.get('barSpacing'), 10),
         chartRangeMin = options.get('chartRangeMin'),
         chartRangeMax = options.get('chartRangeMax'),
-        chartRangeClip = options.get('chartRangeClip'),
+        chartRangeClip = options.get('chartRangeClip')
+        ;
+      let isStackString, groupMin, groupMax,
+        i, vlen, zeroAxis, xaxisOffset, min, max, clipMin, clipMax,
         stackMin = Infinity,
         stackMax = -Infinity,
-        isStackString, groupMin, groupMax, stackRanges,
-        numValues, i, vlen, range, zeroAxis, xaxisOffset, min, max, clipMin, clipMax,
         stacked, vlist, j, slen, svals, val, yoffset, yMaxCalc, canvasHeightEf;
       //bar._super.init.call(this, el, values, options, width, height);
 
@@ -1068,8 +1081,8 @@ const luckysheetSparkline = {
         clipMax = chartRangeMax === undefined ? Infinity : chartRangeMax;
       }
 
-      numValues = [];
-      stackRanges = stacked ? [] : numValues;
+      const numValues = [];
+      const stackRanges = stacked ? [] : numValues;
       const stackTotals = [];
       const stackRangesNeg = [];
       for (i = 0, vlen = values.length; i < vlen; i++) {
@@ -1120,7 +1133,7 @@ const luckysheetSparkline = {
       this.zeroAxis = zeroAxis = options.get('zeroAxis', true);
       if (min <= 0 && max >= 0 && zeroAxis) {
         xaxisOffset = 0;
-      } else if (zeroAxis == false) {
+      } else if (zeroAxis === false) {
         xaxisOffset = min;
       } else if (min > 0) {
         xaxisOffset = 0;
@@ -1129,7 +1142,7 @@ const luckysheetSparkline = {
       }
       this.xaxisOffset = xaxisOffset;
 
-      range = stacked ? (Math.max.apply(Math, stackRanges) + Math.max.apply(Math, stackRangesNeg)) : max - xaxisOffset;
+      const range = stacked ? (Math.max.apply(Math, stackRanges) + Math.max.apply(Math, stackRangesNeg)) : max - xaxisOffset;
 
       // as we plot zero/min values a single pixel line, we add a pixel to all other
       // values - Reduce the effective canvas size to suit
@@ -1169,10 +1182,10 @@ const luckysheetSparkline = {
     },
 
     getCurrentRegionFields: function () {
-      let currentRegion = this.currentRegion,
+      const currentRegion = this.currentRegion,
         values = ensureArray(this.values[currentRegion]),
-        result = [],
-        value, i;
+        result = [];
+      let value, i;
       for (i = values.length; i--;) {
         value = values[i];
         result.push({
@@ -1186,10 +1199,10 @@ const luckysheetSparkline = {
     },
 
     calcColor: function (stacknum, value, valuenum) {
-      let colorMapByIndex = this.colorMapByIndex,
+      const colorMapByIndex = this.colorMapByIndex,
         colorMapByValue = this.colorMapByValue,
-        options = this.options,
-        color, newColor;
+        options = this.options;
+      let color, newColor;
       if (this.stacked) {
         color = options.get('stackedBarColor');
       } else {
@@ -1210,23 +1223,23 @@ const luckysheetSparkline = {
          * Render bar(s) for a region
          */
     renderRegion: function (valuenum, highlight) {
-      let vals = this.values[valuenum],
-        options = this.options,
+      let vals = this.values[valuenum];
+      const options = this.options,
         xaxisOffset = this.xaxisOffset,
         result = [],
         range = this.range,
         stacked = this.stacked,
         target = this.target,
-        x = valuenum * this.totalBarWidth,
-        canvasHeightEf = this.canvasHeightEf,
-        yoffset = this.yoffset,
-        y, height, color, isNull, yoffsetNeg, i, valcount, val, minPlotted, allMin;
+        x = valuenum * this.totalBarWidth;
+      let y, height, color, yoffsetNeg, i, val,canvasHeightEf = this.canvasHeightEf,
+
+        yoffset = this.yoffset, minPlotted;
 
       vals = $.isArray(vals) ? vals : [vals];
-      valcount = vals.length;
+      const valcount = vals.length;
       val = vals[0];
-      isNull = all(null, vals);
-      allMin = all(xaxisOffset, vals, true);
+      const isNull = all(null, vals);
+      const allMin = all(xaxisOffset, vals, true);
 
       if (isNull) {
         if (options.get('nullColor')) {
@@ -1325,11 +1338,11 @@ const luckysheetSparkline = {
     },
 
     calcColor: function (value, valuenum) {
-      let values = this.values,
+      const values = this.values,
         options = this.options,
         colorMapByIndex = this.colorMapByIndex,
-        colorMapByValue = this.colorMapByValue,
-        color, newColor;
+        colorMapByValue = this.colorMapByValue;
+      let  color, newColor;
 
       if (colorMapByValue && (newColor = colorMapByValue.get(value))) {
         color = newColor;
@@ -1346,16 +1359,15 @@ const luckysheetSparkline = {
     },
 
     renderRegion: function (valuenum, highlight) {
-      let values = this.values,
+      const values = this.values,
         options = this.options,
-        target = this.target,
-        canvasHeight, height, halfHeight,
-        x, y, color;
+        target = this.target;
+      let  height, y, color;
 
-      canvasHeight = this.canvasHeight;
-      halfHeight = Math.round(canvasHeight / 2);
+      const canvasHeight = this.canvasHeight;
+      const halfHeight = Math.round(canvasHeight / 2);
 
-      x = valuenum * this.totalBarWidth;
+      const x = valuenum * this.totalBarWidth;
       if (values[valuenum] < 0) {
         y = halfHeight;
         height = halfHeight - 1;
@@ -1421,7 +1433,7 @@ const luckysheetSparkline = {
     },
 
     renderRegion: function (valuenum, highlight) {
-      let values = this.values,
+      const values = this.values,
         options = this.options,
         min = this.min,
         max = this.max,
@@ -1430,13 +1442,12 @@ const luckysheetSparkline = {
         target = this.target,
         canvasHeight = this.canvasHeight,
         lineHeight = this.lineHeight,
-        pheight = canvasHeight - lineHeight,
-        ytop, val, color, x;
+        pheight = canvasHeight - lineHeight;
 
-      val = clipval(values[valuenum], min, max);
-      x = valuenum * interval;
-      ytop = Math.round(pheight - pheight * ((val - min) / range));
-      color = (options.get('thresholdColor') && val < options.get('thresholdValue')) ? options.get('thresholdColor') : options.get('lineColor');
+      const val = clipval(values[valuenum], min, max);
+      const x = valuenum * interval;
+      const ytop = Math.round(pheight - pheight * ((val - min) / range));
+      let color = (options.get('thresholdColor') && val < options.get('thresholdValue')) ? options.get('thresholdColor') : options.get('lineColor');
       if (highlight) {
         color = this.calcHighlightColor(color, options);
       }
@@ -1456,17 +1467,17 @@ const luckysheetSparkline = {
       this.canvasWidth = el.mergedOptions.width;
       this.canvasHeight = el.mergedOptions.height;
 
-      let min, max, vals;
+      let min;
       //bullet._super.init.call(this, el, values, options, width, height);
 
       // values: target, performance, range1, range2, range3
       this.values = values = normalizeValues(values);
       // target or performance could be null
-      vals = values.slice();
+      const vals = values.slice();
       vals[0] = vals[0] === null ? vals[2] : vals[0];
       vals[1] = values[1] === null ? vals[2] : vals[1];
       min = Math.min.apply(Math, values);
-      max = Math.max.apply(Math, values);
+      const max = Math.max.apply(Math, values);
       if (options.get('base') === undefined) {
         min = min < 0 ? min : 0;
       } else {
@@ -1501,9 +1512,9 @@ const luckysheetSparkline = {
     },
 
     changeHighlight: function (highlight) {
-      let currentRegion = this.currentRegion,
-        shapeid = this.valueShapes[currentRegion],
-        shape;
+      const currentRegion = this.currentRegion,
+        shapeid = this.valueShapes[currentRegion];
+      let shape;
       delete this.shapes[shapeid];
       switch (currentRegion.substr(0, 1)) {
       case 'r':
@@ -1522,9 +1533,9 @@ const luckysheetSparkline = {
     },
 
     renderRange: function (rn, highlight) {
-      let rangeval = this.values[rn],
-        rangewidth = Math.round(this.canvasWidth * ((rangeval - this.min) / this.range)),
-        color = this.options.get('rangeColors')[rn - 2];
+      const rangeval = this.values[rn],
+        rangewidth = Math.round(this.canvasWidth * ((rangeval - this.min) / this.range));
+      let color = this.options.get('rangeColors')[rn - 2];
       if (highlight) {
         color = this.calcHighlightColor(color, this.options);
       }
@@ -1532,9 +1543,9 @@ const luckysheetSparkline = {
     },
 
     renderPerformance: function (highlight) {
-      let perfval = this.values[1],
-        perfwidth = Math.round(this.canvasWidth * ((perfval - this.min) / this.range)),
-        color = this.options.get('performanceColor');
+      const perfval = this.values[1],
+        perfwidth = Math.round(this.canvasWidth * ((perfval - this.min) / this.range));
+      let color = this.options.get('performanceColor');
       if (highlight) {
         color = this.calcHighlightColor(color, this.options);
       }
@@ -1543,11 +1554,11 @@ const luckysheetSparkline = {
     },
 
     renderTarget: function (highlight) {
-      let targetval = this.values[0],
+      const targetval = this.values[0],
         x = Math.round(this.canvasWidth * ((targetval - this.min) / this.range) - (this.options.get('targetWidth') / 2)),
         targettop = Math.round(this.canvasHeight * 0.10),
-        targetheight = this.canvasHeight - (targettop * 2),
-        color = this.options.get('targetColor');
+        targetheight = this.canvasHeight - (targettop * 2);
+      let color = this.options.get('targetColor');
       if (highlight) {
         color = this.calcHighlightColor(color, this.options);
       }
@@ -1556,9 +1567,9 @@ const luckysheetSparkline = {
 
     render: function (el,userValues) {
       this.init(el,userValues);
-      let vlen = this.values.length,
-        target = this.target,
-        i, shape;
+      const vlen = this.values.length,
+        target = this.target;
+      let i, shape;
       // if (!bullet._super.render.call(this)) {
       //     return;
       // }
@@ -1641,18 +1652,18 @@ const luckysheetSparkline = {
     },
 
     renderSlice: function (valuenum, highlight) {
-      let target = this.target,
+      const target = this.target,
         options = this.options,
         radius = this.radius,
         borderWidth = options.get('borderWidth'),
         offset = options.get('offset'),
         circle = 2 * Math.PI,
         values = this.values,
-        total = this.total,
-        next = offset ? (2*Math.PI)*(offset/360) : 0,
-        start, end, i, vlen, color;
+        total = this.total;
+      let next = offset ? (2*Math.PI)*(offset/360) : 0;
+      let start, end, i, color;
 
-      vlen = values.length;
+      const vlen = values.length;
       for (i = 0; i < vlen; i++) {
         start = next;
         end = next;
@@ -1673,12 +1684,12 @@ const luckysheetSparkline = {
 
     render: function (el,userValues) {
       this.init(el,userValues);
-      let target = this.target,
+      const target = this.target,
         values = this.values,
         options = this.options,
         radius = this.radius,
-        borderWidth = options.get('borderWidth'),
-        shape, i;
+        borderWidth = options.get('borderWidth');
+      let shape, i;
 
       // if (!pie._super.render.call(this)) {
       //     return;
@@ -1749,16 +1760,16 @@ const luckysheetSparkline = {
     render:  function (el,userValues) {
       this.init(el,userValues);
 
-      let target = this.target,
+      const target = this.target,
         values = this.values,
         vlen = values.length,
         options = this.options,
-        canvasWidth = this.canvasWidth,
+
         canvasHeight = this.canvasHeight,
         minValue = options.get('chartRangeMin') === undefined ? Math.min.apply(Math, values) : options.get('chartRangeMin'),
-        maxValue = options.get('chartRangeMax') === undefined ? Math.max.apply(Math, values) : options.get('chartRangeMax'),
-        canvasLeft = 0,
-        lwhisker, loutlier, iqr, q1, q2, q3, rwhisker, routlier, i,
+        maxValue = options.get('chartRangeMax') === undefined ? Math.max.apply(Math, values) : options.get('chartRangeMax');
+      let lwhisker, loutlier, iqr, q1, q2, q3, rwhisker, routlier, i,
+        canvasLeft = 0,canvasWidth = this.canvasWidth,
         size, unitSize;
 
       // if (!box._super.render.call(this)) {
@@ -1895,12 +1906,11 @@ const luckysheetSparkline = {
   lastShapeId:null,
   mergedOptions:null,
   init:function(userValues, userOptions){
-    let extendedOptions, defaults, base;
     userOptions = userOptions || {};
     const _this = this;
-    defaults = this.defaultOption;
-    base = defaults.common;
-    extendedOptions = defaults[userOptions.type || base.type];
+    const defaults = this.defaultOption;
+    const base = defaults.common;
+    const extendedOptions = defaults[userOptions.type || base.type];
 
     _this.shapeCount = 0;
     _this.shapes = {};
@@ -1915,7 +1925,7 @@ const luckysheetSparkline = {
   },
   _getContext: function (lineColor, fillColor, lineWidth) {
     let context;
-    if(this.ctx != null){
+    if(this.ctx !== null && this.ctx !== undefined){
       context = this.ctx;
     }
     else{
@@ -1941,8 +1951,8 @@ const luckysheetSparkline = {
   },
 
   _drawShape: function (shapeid, path, lineColor, fillColor, lineWidth) {
-    let context = this._getContext(lineColor, fillColor, lineWidth),
-      i, plen;
+    const context = this._getContext(lineColor, fillColor, lineWidth);
+    let i, plen;
     context.beginPath();
     context.moveTo(path[0][0] + 0.5 + this.offsetX, path[0][1] + 0.5 + this.offsetY);
 
@@ -2014,11 +2024,11 @@ const luckysheetSparkline = {
   },
 
   replaceWithShape: function (shapeid, shape) {
-    let shapeseq = this.shapeseq,
-      i;
+    const shapeseq = this.shapeseq;
+    let i;
     this.shapes[shape.id] = shape;
     for (i = shapeseq.length; i--;) {
-      if (shapeseq[i] == shapeid) {
+      if (String(shapeseq[i]) === String(shapeid)) {
         shapeseq[i] = shape.id;
       }
     }
@@ -2026,9 +2036,9 @@ const luckysheetSparkline = {
   },
 
   replaceWithShapes: function (shapeids, shapes) {
-    let shapeseq = this.shapeseq,
-      shapemap = {},
-      sid, i, first;
+    const shapeseq = this.shapeseq,
+      shapemap = {};
+    let sid, i, first;
 
     for (i = shapeids.length; i--;) {
       shapemap[shapeids[i]] = true;
@@ -2049,8 +2059,8 @@ const luckysheetSparkline = {
   },
 
   insertAfterShape: function (shapeid, shape) {
-    let shapeseq = this.shapeseq,
-      i;
+    const shapeseq = this.shapeseq;
+    let i;
     for (i = shapeseq.length; i--;) {
       if (shapeseq[i] === shapeid) {
         shapeseq.splice(i + 1, 0, shape.id);
@@ -2061,8 +2071,8 @@ const luckysheetSparkline = {
   },
 
   removeShapeId: function (shapeid) {
-    let shapeseq = this.shapeseq,
-      i;
+    const shapeseq = this.shapeseq;
+    let i;
     for (i = shapeseq.length; i--;) {
       if (shapeseq[i] === shapeid) {
         shapeseq.splice(i, 1);
@@ -2080,18 +2090,18 @@ const luckysheetSparkline = {
   },
   _canvasID:'luckysheetTableContent',
   render: function (shapeseq, shapes, offsetX, offsetY, pixelWidth, pixelHeight,canvasid,ctx) {
-    if(canvasid==null){
+    if(canvasid===null || canvasid === undefined){
       canvasid = 'luckysheetTableContent';
     }
     this._canvasID = canvasid;
 
-    if(ctx != null){
+    if(ctx !== null && ctx !== undefined){
       this.ctx = ctx;
     }
 
-    let shapeCount = shapeseq.length,
-      context = this._getContext(),
-      shapeid, shape, i;
+    const shapeCount = shapeseq.length,
+      context = this._getContext();
+    let shapeid, shape, i;
     this.offsetX = offsetX;
     this.offsetY = offsetY;
     this.pixelWidth = pixelWidth;
@@ -2161,10 +2171,10 @@ const luckysheetSparkline = {
 
 const barHighlightMixin = {
   changeHighlight: function (highlight) {
-    let currentRegion = this.currentRegion,
+    const currentRegion = this.currentRegion,
       target = this.target,
-      shapeids = this.regionShapes[currentRegion],
-      newShapes;
+      shapeids = this.regionShapes[currentRegion];
+    let newShapes;
     // will be null if the region value was null
     if (shapeids) {
       newShapes = this.renderRegion(currentRegion, highlight);
@@ -2181,10 +2191,10 @@ const barHighlightMixin = {
   },
   render: function (el,userValues) {
     this.init(el, userValues);
-    let values = this.values,
+    const values = this.values,
       target = this.target,
-      regionShapes = this.regionShapes,
-      shapes, ids, i, j;
+      regionShapes = this.regionShapes;
+    let shapes, ids, i, j;
 
     // if (!this.cls._super.render.call(this)) {
     //     return;
