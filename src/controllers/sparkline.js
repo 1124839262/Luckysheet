@@ -260,8 +260,8 @@ const luckysheetSparkline = {
       numberDigitGroupCount: 3,
       numberDigitGroupSep: ',',
       numberDecimalMark: '.',
-      disableTooltips: true,
-      disableInteraction: true,
+      disableTooltips: false,
+      disableInteraction: false,
       offsetX:0,
       offsetY:0
     },
@@ -393,14 +393,8 @@ const luckysheetSparkline = {
       //this.initTarget();
     },
     getRegion: function (el, x, y) {
-      let i;
-      const regionMap = this.regionMap; // maps regions to value positions
-      for (i = regionMap.length; i--;) {
-        if (regionMap[i] !== null && x >= regionMap[i][0] && x <= regionMap[i][1]) {
-          return regionMap[i][2];
-        }
-      }
-      return undefined;
+      const shapeid = this.target.getShape(el, x, y);
+      return (shapeid !== undefined && this.shapes[shapeid] !== undefined) ? this.shapes[shapeid] : undefined;
     },
     getCurrentRegionFields: function () {
       const currentRegion = this.currentRegion;
@@ -1006,18 +1000,18 @@ const luckysheetSparkline = {
       }
       return result;
     },
-    calcHighlightColor(color, options) {
-      if (!color) {return '#cccccc';}
-      // 简单提亮 15%，图表高亮最常用效果
-      return color.replace(/^#?([0-9a-f]{6}|[0-9a-f]{3})$/i, (_, c) => {
-        const rgb = c.length === 3
-          ? [c[0]+c[0], c[1]+c[1], c[2]+c[2]]
-          : [c[0]+c[1], c[2]+c[3], c[4]+c[5]];
-        return `#${  rgb.map(x => {
-          const num = parseInt(x, 16);
-          return Math.min(255, num + 30).toString(16).padStart(2, '0');
-        }).join('')}`;
-      });
+    calcHighlightColor: function(color, options) {
+      const lighten = options.get('highlightLighten') || 1.4;
+
+      if (typeof color === 'string' && color.charAt(0) === '#') {
+        const num = parseInt(color.slice(1), 16);
+        const r = Math.min(255, Math.floor((num >> 16) * lighten));
+        const g = Math.min(255, Math.floor(((num >> 8) & 0x00FF) * lighten));
+        const b = Math.min(255, Math.floor((num & 0x0000FF) * lighten));
+        return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+      }
+
+      return color;
     },
   },
   column:{
@@ -2165,9 +2159,124 @@ const luckysheetSparkline = {
         return id;
       }
     };
+  },
+
+  calcHighlightColor: function(color, options) {
+    const lighten = options.get('highlightLighten') || 1.4;
+
+    if (typeof color === 'string' && color.charAt(0) === '#') {
+      const num = parseInt(color.slice(1), 16);
+      const r = Math.min(255, Math.floor((num >> 16) * lighten));
+      const g = Math.min(255, Math.floor(((num >> 8) & 0x00FF) * lighten));
+      const b = Math.min(255, Math.floor((num & 0x0000FF) * lighten));
+      return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+    }
+
+    return color;
+  },
+
+  getRegionInfo: function(x, y) {
+    if (!this.mergedOptions) {
+      return null;
+    }
+
+    const chartType = this.mergedOptions.type;
+    const chart = luckysheetSparkline[chartType];
+    if (!chart || !chart.getRegion) {
+      return null;
+    }
+
+    const region = chart.getRegion(this, x, y);
+    if (region === undefined || region === null) {
+      return null;
+    }
+
+    if (chart.getCurrentRegionFields) {
+      this.currentRegion = region;
+      const fields = chart.getCurrentRegionFields.call(this);
+      return fields;
+    }
+    return null;
+  },
+
+
+  showTooltip: function(event, cellIndex) {
+    if (!this.mergedOptions || this.mergedOptions.disableTooltips) {
+      return;
+    }
+
+    const canvas = $(`#${this._canvasID || 'luckysheetTableContent'}`);
+    const offset = canvas.offset();
+    const x = event.pageX - offset.left - (this.mergedOptions.offsetX || 0);
+    const y = event.pageY - offset.top - (this.mergedOptions.offsetY || 0);
+
+    const regionInfo = this.getRegionInfo(x, y);
+
+    if (!regionInfo) {
+      this.hideTooltip();
+      return;
+    }
+
+    let tooltipText = '';
+    const prefix = this.mergedOptions.tooltipPrefix || '';
+    const suffix = this.mergedOptions.tooltipSuffix || '';
+
+    if (regionInfo.isNull) {
+      if (this.mergedOptions.tooltipSkipNull) {
+        this.hideTooltip();
+        return;
+      }
+      tooltipText = `${prefix}null${suffix}`;
+    } else {
+      if (regionInfo.x !== undefined && regionInfo.y !== undefined) {
+        tooltipText = `${prefix}${regionInfo.y}${suffix} (${regionInfo.x})`;
+      } else if (regionInfo.value !== undefined) {
+        tooltipText = prefix + regionInfo.value + suffix;
+      }
+    }
+
+    if (tooltipText) {
+      this.displayTooltip(tooltipText, event.pageX, event.pageY);
+    }
+  },
+
+  displayTooltip: function(text, pageX, pageY) {
+    let $tooltip = $('#luckysheet-sparkline-tooltip');
+
+    if (!$tooltip.length) {
+      $tooltip = $('<div id="luckysheet-sparkline-tooltip"></div>');
+      $tooltip.css({
+        position: 'absolute',
+        padding: '5px 10px',
+        background: 'rgba(0, 0, 0, 0.8)',
+        color: '#fff',
+        borderRadius: '3px',
+        fontSize: '12px',
+        pointerEvents: 'none',
+        zIndex: 999999,
+        display: 'none',
+        whiteSpace: 'nowrap'
+      });
+      $('body').append($tooltip);
+    }
+
+    $tooltip.text(text);
+    $tooltip.css({
+      left: pageX + 10,
+      top: pageY + 10,
+      display: 'block'
+    });
+  },
+
+  hideTooltip: function() {
+    const $tooltip = $('#luckysheet-sparkline-tooltip');
+    if ($tooltip.length) {
+      $tooltip.hide();
+    }
   }
 
 };
+
 
 const barHighlightMixin = {
   changeHighlight: function (highlight) {

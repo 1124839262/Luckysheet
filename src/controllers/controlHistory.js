@@ -12,14 +12,14 @@ import formula from '../global/formula';
 import json from '../global/json';
 import cleargridelement from '../global/cleargridelement';
 import {
-    jfrefreshgrid,
-    jfrefreshgrid_adRC,
-    jfrefreshgrid_deleteCell,
-    jfrefreshgrid_pastcut,
-    jfrefreshgrid_rhcw,
-    jfrefreshgridall,
-    jfrefreshrange,
-    luckysheetrefreshgrid
+  jfrefreshgrid,
+  jfrefreshgrid_adRC,
+  jfrefreshgrid_deleteCell,
+  jfrefreshgrid_pastcut,
+  jfrefreshgrid_rhcw,
+  jfrefreshgridall,
+  jfrefreshrange,
+  luckysheetrefreshgrid
 } from '../global/refresh';
 import {getSheetIndex} from '../methods/get';
 import Store from '../store';

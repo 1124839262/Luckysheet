@@ -4,7 +4,7 @@ function luckysheetbinary_search(arr, key) {
   while (low <= high) {
     const mid = parseInt((high + low) / 2);
 
-    if (key < arr[mid] && (mid == 0 || key >= arr[mid - 1])) {
+    if (key < arr[mid] && (mid === 0 || key >= arr[mid - 1])) {
       return mid;
     }
     else if (key >= arr[mid]) {
@@ -29,7 +29,7 @@ function luckysheetorder_search(arr, y) {
   while (i < arr.length && i_ed >= 0 && i_ed >= i) {
     row = arr[i_ed];
 
-    if (i_ed == 0) {
+    if (i_ed === 0) {
       row_pre = 0;
     }
     else {
@@ -43,7 +43,7 @@ function luckysheetorder_search(arr, y) {
 
     row = arr[i];
 
-    if (i == 0) {
+    if (i === 0) {
       row_pre = 0;
     }
     else {
