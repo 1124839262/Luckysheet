@@ -1,5 +1,4 @@
 import {columeHeader_word, luckysheetdefaultFont} from '../controllers/constant';
-import menuButton from '../controllers/menuButton';
 import {isdatatype, isdatatypemulti} from '../global/datecontroll';
 import {hasChinaword, isRealNum} from '../global/validate';
 import Store from '../store';
@@ -439,7 +438,10 @@ function luckysheetfontformat(format) {
         }
 
         if (fontfamily && document.fonts && !document.fonts.check(`12px ${  fontfamily}`)) {
-          menuButton.addFontTolist(fontfamily);
+          // 动态导入以避免循环依赖
+          import('../controllers/menuButton').then((menuButtonModule) => {
+            menuButtonModule.default.addFontTolist(fontfamily);
+          });
         }
       }
 
