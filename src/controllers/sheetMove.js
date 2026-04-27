@@ -9,7 +9,11 @@ import Store from '../store';
 import server from './server';
 
 function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
-  if (isScroll == null) {
+
+  const p_startC = Store.luckysheet_shiftpositon['column'][0];
+// need var
+  const p_startR = Store.luckysheet_shiftpositon['row'][0];
+  if (isScroll === null || isScroll === undefined) {
     isScroll = true;
   }
 
@@ -21,40 +25,35 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
     type = 'cell';
   }
 
-  if (onlyvalue == null) {
+  if (onlyvalue === null || onlyvalue === undefined) {
     onlyvalue = false;
   }
 
   const last = Store.luckysheet_select_save[Store.luckysheet_select_save.length - 1];
 
-  let curR = last['row'] == null ? 0 : last['row'][0];
-  let curC = last['column'] == null ? 0 : last['column'][0];
+  let curR = last['row'] === null || last['row'] === undefined ? 0 : last['row'][0];
+  let curC = last['column'] === null || last['column'] === undefined ? 0 : last['column'][0];
 
-  const startR = last['row'] == null ? 0 : last['row'][0];
-  const startC = last['column'] == null ? 0 : last['column'][0];
+  const startR = last['row'] === null || last['row'] === undefined ? 0 : last['row'][0];
+  const startC = last['column'] === null || last['column'] === undefined ? 0 : last['column'][0];
 
-  const endR = last['row'] == null ? 0 : last['row'][1];
-  const endC = last['column'] == null ? 0 : last['column'][1];
+  const endR = last['row'] === null || last['row'] === undefined ? 0 : last['row'][1];
+  const endC = last['column'] === null || last['column'] === undefined ? 0 : last['column'][1];
 
+  const p_endR = Store.luckysheet_shiftpositon['row'][1];
+  const p_endC = Store.luckysheet_shiftpositon['column'][1];
   formula.fucntionboxshow(curR, curC);
 
-  if (type == 'range') {
-    // need var
-    var p_startR = Store.luckysheet_shiftpositon['row'][0];
-    var p_startC = Store.luckysheet_shiftpositon['column'][0];
-
-    const p_endR = Store.luckysheet_shiftpositon['row'][1];
-    const p_endC = Store.luckysheet_shiftpositon['column'][1];
-
-    if (postion == 'down' || postion == 'up') {
+  if (type === 'range') {
+    if (postion === 'down' || postion === 'up') {
       if (p_endR < endR) {
         curR = last['row'] == null ? 0 : last['row'][1];
       }
       else if (p_startR > startR) {
         curR = last['row'] == null ? 0 : last['row'][0];
       }
-      else if (p_endR == endR && p_startR == startR) {
-        if (postion == 'down') {
+      else if (p_endR === endR && p_startR === startR) {
+        if (postion === 'down') {
           curR = last['row'] == null ? 0 : last['row'][1];
         }
         else {
@@ -62,15 +61,15 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
         }
       }
     }
-    else if (postion == 'right' || postion == 'left') {
+    else if (postion === 'right' || postion === 'left') {
       if (p_endC < endC) {
         curC = last['column'] == null ? 0 : last['column'][1];
       }
       else if (p_startC > startC) {
         curC = last['column'] == null ? 0 : last['column'][0];
       }
-      else if (p_endC == endC && p_startC == startC) {
-        if (postion == 'right') {
+      else if (p_endC === endC && p_startC === startC) {
+        if (postion === 'right') {
           curC = last['column'] == null ? 0 : last['column'][1];
         }
         else {
@@ -85,8 +84,8 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
 
   let data = Store.flowdata, moveP = '', moveV = 0;
 
-  if (postion == 'up') {
-    if (curR == 0) {
+  if (postion === 'up') {
+    if (curR === 0) {
       return;
     }
     else {
@@ -98,7 +97,7 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
         for (let r = curR - 1; r >= 0; r--) {
           const cell = data[r][c];
 
-          if (getObjType(cell) == 'object' && isRealNull(cell.v)) {
+          if (getObjType(cell) === 'object' && isRealNull(cell.v)) {
             stvalue.push(false);
           }
           else if (isRealNull(cell)) {
@@ -109,11 +108,11 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
           }
 
           if (stvalue.length > 1) {
-            if (stvalue[i] == true && stvalue[i - 1] == false) {
+            if (stvalue[i] === true && stvalue[i - 1] === false) {
               p = r;
               break;
             }
-            else if (stvalue[i] == false && stvalue[i - 1] == true) {
+            else if (stvalue[i] === false && stvalue[i - 1] === true) {
               p = r + 1;
               break;
             }
@@ -122,11 +121,11 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
           i++;
         }
 
-        if(p == null){
+        if(p === null || p === undefined){
           p = 0;
         }
 
-        if (p_pre == null || p < p_pre) {
+        if (p_pre === null || p_pre === undefined || p < p_pre) {
           p_pre = p;
         }
       }
@@ -135,8 +134,8 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
       moveV = p_pre - curR;
     }
   }
-  else if (postion == 'down') {
-    if (curR == datarowlen - 1) {
+  else if (postion === 'down') {
+    if (curR === datarowlen - 1) {
       return;
     }
     else {
@@ -148,7 +147,7 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
         for (let r = curR + 1; r < data.length; r++) {
           const cell = data[r][c];
 
-          if (getObjType(cell) == 'object' && isRealNull(cell.v)) {
+          if (getObjType(cell) === 'object' && isRealNull(cell.v)) {
             stvalue.push(false);
           }
           else if (isRealNull(cell)) {
@@ -159,11 +158,11 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
           }
 
           if (stvalue.length > 1) {
-            if (stvalue[i] == true && stvalue[i - 1] == false) {
+            if (stvalue[i] === true && stvalue[i - 1] === false) {
               p = r;
               break;
             }
-            else if (stvalue[i] == false && stvalue[i - 1] == true) {
+            else if (stvalue[i] === false && stvalue[i - 1] === true) {
               p = r - 1;
               break;
             }
@@ -172,11 +171,11 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
           i++;
         }
 
-        if(p == null){
+        if(p === null || p === undefined){
           p = data.length - 1;
         }
 
-        if (p_pre == null || p > p_pre) {
+        if (p_pre === null || p_pre === undefined || p > p_pre) {
           p_pre = p;
         }
       }
@@ -185,8 +184,8 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
       moveV = p_pre - curR;
     }
   }
-  else if (postion == 'left') {
-    if (curC == 0) {
+  else if (postion === 'left') {
+    if (curC === 0) {
       return;
     }
     else {
@@ -197,7 +196,7 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
         for (let c = curC - 1; c >= 0; c--) {
           const cell = data[r][c];
 
-          if (getObjType(cell) == 'object' && isRealNull(cell.v)) {
+          if (getObjType(cell) === 'object' && isRealNull(cell.v)) {
             stvalue.push(false);
           }
           else if (isRealNull(cell)) {
@@ -208,11 +207,11 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
           }
 
           if (stvalue.length > 1) {
-            if (stvalue[i] == true && stvalue[i - 1] == false) {
+            if (stvalue[i] === true && stvalue[i - 1] === false) {
               p = c;
               break;
             }
-            else if (stvalue[i] == false && stvalue[i - 1] == true) {
+            else if (stvalue[i] === false && stvalue[i - 1] === true) {
               p = c + 1;
               break;
             }
@@ -221,11 +220,11 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
           i++;
         }
 
-        if(p == null){
+        if(p === null || p === undefined){
           p = 0;
         }
 
-        if (p_pre == null || p < p_pre) {
+        if (p_pre === null || p_pre === undefined || p < p_pre) {
           p_pre = p;
         }
       }
@@ -234,8 +233,8 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
       moveV = p_pre - curC;
     }
   }
-  else if (postion == 'right') {
-    if (curC == datacolumnlen - 1) {
+  else if (postion === 'right') {
+    if (datacolumnlen === 0 || curC === datacolumnlen - 1) {
       return;
     }
     else {
@@ -247,7 +246,7 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
         for (let c = curC + 1; c < data[0].length; c++) {
           const cell = data[r][c];
 
-          if (getObjType(cell) == 'object' && isRealNull(cell.v)) {
+          if (getObjType(cell) === 'object' && isRealNull(cell.v)) {
             stvalue.push(false);
           }
           else if (isRealNull(cell)) {
@@ -258,11 +257,11 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
           }
 
           if (stvalue.length > 1) {
-            if (stvalue[i] == true && stvalue[i - 1] == false) {
+            if (stvalue[i] === true && stvalue[i - 1] === false) {
               p = c;
               break;
             }
-            else if (stvalue[i] == false && stvalue[i - 1] == true) {
+            else if (stvalue[i] === false && stvalue[i - 1] === true) {
               p = c - 1;
               break;
             }
@@ -271,11 +270,11 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
           i++;
         }
 
-        if(p == null){
+        if(p === null || p === undefined){
           p = data[0].length - 1;
         }
 
-        if (p_pre == null || p > p_pre) {
+        if (p_pre === null || p_pre === undefined || p > p_pre) {
           p_pre = p;
         }
       }
@@ -285,29 +284,29 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
     }
   }
 
-  if (type == 'range') {
-    if (postion == 'up') {
+  if (type === 'range') {
+    if (postion === 'up') {
       if (p_endR < endR) {
         if (moveV + curR < p_endR) {
           moveV = p_endR - curR;
         }
       }
     }
-    else if (postion == 'down') {
+    else if (postion === 'down') {
       if (p_startR > startR) {
         if (moveV + curR > p_startR) {
           moveV = p_startR - curR;
         }
       }
     }
-    else if (postion == 'left') {
+    else if (postion === 'left') {
       if (p_endC < endC) {
         if (moveV + curC < p_endC) {
           moveV = p_endC - curC;
         }
       }
     }
-    else if (postion == 'right') {
+    else if (postion === 'right') {
       if (p_startC > startC) {
         if (moveV + curC > p_startC) {
           moveV = p_startC - curC;
@@ -315,16 +314,16 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
       }
     }
 
-    if (terminal != null && Math.abs(moveV) > Math.abs(terminal)) {
+    if (terminal !== null && terminal !== undefined && Math.abs(moveV) > Math.abs(terminal)) {
       moveV = terminal;
     }
   }
 
   if (!onlyvalue) {
-    if (type == 'cell') {
+    if (type === 'cell') {
       luckysheetMoveHighlightCell(moveP, moveV, 'rangeOfSelect', isScroll);
     }
-    else if (type == 'range') {
+    else if (type === 'range') {
       luckysheetMoveHighlightRange(moveP, moveV, 'rangeOfSelect', isScroll);
     }
   }
@@ -335,7 +334,7 @@ function luckysheetMoveEndCell(postion, type, isScroll, terminal, onlyvalue) {
 
 //方向键  调整单元格
 function luckysheetMoveHighlightCell(postion, index, type, isScroll) {
-  if (isScroll == null) {
+  if (isScroll === null || isScroll === undefined) {
     isScroll = true;
   }
 

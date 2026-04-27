@@ -1,9 +1,8 @@
-
 import locale from '../../locale/locale';
-import { modelHTML } from "../../controllers/constant";
-import { arrayRemoveItem, replaceHtml } from '../../utils/util';
+import {modelHTML} from "../../controllers/constant";
+import {arrayRemoveItem, replaceHtml} from '../../utils/util';
 import tooltip from '../../global/tooltip';
-import { getSheetIndex } from '../../methods/get';
+import {getSheetIndex} from '../../methods/get';
 import Store from '../../store';
 
 // Initialize the export xlsx api
@@ -92,7 +91,7 @@ function createExportDialog(url) {
             }),
         );
 
-        selectedOption = 'allSheets'
+        let selectedOption = 'allSheets'
 
         // init event
         $("#luckysheet-export-xlsx .luckysheet-model-confirm-btn").on('click',()=>{

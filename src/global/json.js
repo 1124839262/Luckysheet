@@ -1,33 +1,33 @@
-import { getObjType } from '../utils/util';
+import {getObjType} from '../utils/util';
 
 const json = {
-    parseJsonParm: function(obj){
-        if(obj == null){
-            return {};
-        }
-        else if(getObjType(obj) == "string"){
-            try {
-                let json = new Function("return " + obj)(); 
-                return json;
-            } 
-            catch(e) {
-                return {};
-            }
-        }
-        else{
-            return obj;
-        }
-    },
-    hasKey: function(obj){
-        let _this = this;
-        let json = _this.parseJsonParm(obj);
-        
-        for(let item in json){
-            return true;
-        }
-
-        return false;
+  parseJsonParm: function(obj){
+    if(obj == null){
+      return {};
     }
-}
+    else if(getObjType(obj) == 'string'){
+      try {
+        const json = new Function(`return ${  obj}`)();
+        return json;
+      }
+      catch(e) {
+        return {};
+      }
+    }
+    else{
+      return obj;
+    }
+  },
+  hasKey: function(obj){
+    const _this = this;
+    const json = _this.parseJsonParm(obj);
+
+    for(const item in json){
+      return true;
+    }
+
+    return false;
+  }
+};
 
 export default json;

@@ -11,3 +11,7 @@ npx eslint "src/locale/**/*.js" --fix
 npx eslint "src/data/**/*.js" "src/demoData/**/*.js" --fix
 
 # 最后再处理复杂的 controllers 和 global
+npx eslint "src/controllers/**/*.js" --fix
+
+npx eslint "src/global/**/*.js" --fix
+npx eslint "src/function/**/*.js" --fix
