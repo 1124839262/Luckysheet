@@ -30,14 +30,18 @@ const terser = require('rollup-plugin-terser').terser;
 const babel = require('@rollup/plugin-babel').default;
 // const gulpBabel = require('gulp-babel');
 // Distinguish development and production environments
-const production = process.env.NODE_ENV === 'production' ? true : false;
-
 const pkg = require('./package.json');
 const banner = `/*! @preserve
  * ${pkg.name}
  * version: ${pkg.version}
  * https://github.com/mengshukeji/Luckysheet
  */`;
+
+const production = process.env.NODE_ENV === 'production' ? true : false;
+const useSplitChunks = process.env.SPLIT_CHUNKS === '1' ? true : false;
+
+const buildConfig = require('./build.config.js');
+buildConfig.splitChunks = useSplitChunks ? 'split' : 'none';
 
 // uglify js Compression configuration https://github.com/mishoo/UglifyJS#minify-options
 const uglifyOptions = {
@@ -50,7 +54,7 @@ const uglifyOptions = {
 const babelConfig = {
     compact:false,
     babelHelpers: 'bundled',
-    exclude: 'node_modules/**', // Only compile our source code
+    exclude: 'node_modules/**',
     plugins: [
     ],
     presets: [
@@ -63,6 +67,10 @@ const babelConfig = {
             }
         }]
     ]
+};
+
+const buildOptions = {
+    sourcemap: false,
 };
 
 // file handler paths
@@ -176,58 +184,78 @@ function reloadBrowser(done) {
     done();
 }
 
-//Package the core code
+// core rollup function
 async function core_rollup() {
     const bundle = await rollup({
         input: 'src/index.js',
         plugins: [
-            nodeResolve(), // tells Rollup how to find date-fns in node_modules
-            commonjs(), // converts date-fns to ES modules
-            // postcss({
-            // 	plugins: [],
-            // 	extract: true,
-            // 	// minimize: isProductionEnv,
-            // }),
-            production && terser(), // minify, but only in production
+            nodeResolve(),
+            commonjs(),
+            production && terser(),
             babel(babelConfig)
         ],
+        treeshake: production ? {
+            moduleSideEffects: false,
+            propertyReadSideEffects: false,
+        } : false,
     });
 
-    bundle.write({
-        file: 'dist/luckysheet.umd.js',
-        format: 'umd',
-        name: 'luckysheet',
-        sourcemap: true,
-        inlineDynamicImports:true,
-        banner: banner
-    });
+    const outputOptions = {
+        sourcemap: buildOptions.sourcemap,
+        banner: banner,
+    };
 
-    if(production){
-        bundle.write({
-            file: 'dist/luckysheet.esm.js',
-            format: 'esm',
-            name: 'luckysheet',
-            sourcemap: true,
-            inlineDynamicImports:true,
-            banner: banner
+    if (production && buildConfig.splitChunks === 'split') {
+        // 代码分割模式
+        await bundle.write({
+            ...outputOptions,
+            file: 'dist/luckysheet.js',
+            format: 'es',
+            chunkFileNames: 'luckysheet-[name].js',
+            entryFileNames: 'luckysheet-[name].js',
+            manualChunks: (id) => {
+                if (!id || !id.includes || !id.includes('node_modules')) {
+                    return;
+                }
+                const parts = id.split('node_modules/');
+                if (parts.length < 2) return;
+                const name = parts[1].split('/')[0];
+                if (buildConfig.vendors.includes(name)) {
+                    return 'vendor';
+                }
+            },
         });
+        
+        // 兼容旧浏览器
+        await bundle.write({
+            ...outputOptions,
+            file: 'dist/luckysheet.umd.js',
+            format: 'umd',
+            name: 'luckysheet',
+            inlineDynamicImports: true,
+        });
+    } else {
+        // 默认模式
+        await bundle.write({
+            ...outputOptions,
+            file: 'dist/luckysheet.umd.js',
+            format: 'umd',
+            name: 'luckysheet',
+            inlineDynamicImports: true,
+        });
+        
+        if (production) {
+            await bundle.write({
+                ...outputOptions,
+file: 'dist/luckysheet.esm.js',
+                format: 'esm',
+            });
+        }
     }
-
 }
 
 async function core() {
-
-    await require('esbuild').buildSync({
-        format: 'iife',
-        globalName: 'luckysheet',    
-        entryPoints: ['src/index.js'],
-        bundle: true,
-        minify: production,
-        banner: { js: banner },
-        target: ['es2015'],
-        sourcemap: true,
-        outfile: 'dist/luckysheet.umd.js',
-      })
+    await core_rollup();
 }
 
 // According to the build tag in html, package js and css

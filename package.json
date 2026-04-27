@@ -56,6 +56,8 @@
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production gulp build",
+    "build:split": "cross-env NODE_ENV=production SPLIT_CHUNKS=1 gulp build",
+    "build:core": "cross-env NODE_ENV=production gulp build",
     "dev": "cross-env NODE_ENV=development gulp dev",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
