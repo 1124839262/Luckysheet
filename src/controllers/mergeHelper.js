@@ -10,7 +10,6 @@ import Store from '../store';
  */
 function mergeborer(d, row_index, col_index) {
   if (d == null || d[row_index] == null) {
-    console.warn('Merge info is null', row_index, col_index);
     return null;
   }
   const value = d[row_index][col_index];
@@ -18,14 +17,12 @@ function mergeborer(d, row_index, col_index) {
   if (getObjType(value) == 'object' && 'mc' in value) {
     const margeMaindata = value['mc'];
     if (margeMaindata == null) {
-      console.warn('Merge info is null', row_index, col_index);
       return null;
     }
     col_index = margeMaindata.c;
     row_index = margeMaindata.r;
 
     if (d[row_index][col_index] == null) {
-      console.warn('Main merge Cell info is null', row_index, col_index);
       return null;
     }
     const col_rs = d[row_index][col_index].mc.cs;

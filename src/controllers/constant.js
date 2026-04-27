@@ -4,6 +4,21 @@ import luckysheetConfigsetting from './luckysheetConfigsetting';
 import {getObjType} from '../utils/util';
 import {createToolbarHtml} from './toolbar';
 
+// UUID 生成函数（使用原生 crypto API，兼容旧浏览器）
+function generateUUID() {
+  // 现代浏览器支持 crypto.randomUUID()
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  
+  // 备用方案：手动生成 UUID v4
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 //dom variable
 const gridHTML = function() {
   const _locale = locale();
@@ -1268,7 +1283,7 @@ const luckysheetlodingHTML = function(target, coverConfig) {
     };
   }
   const imageHtml = luckysheetloadingImage(config);
-  const id = `luckysheet-loading-${  uuid.v4()}`;
+  const id = `luckysheet-loading-${  generateUUID()}`;
   const loadingHtml = `
         <div class="luckysheet-loading-content"> 
             <div class="${config.imageClass} luckysheet-loading-image">

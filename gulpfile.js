@@ -102,7 +102,6 @@ const paths = {
     css:['src/css/*.css','node_modules/flatpickr/dist/themes/light.css'],
     pluginsJs:[
         'node_modules/jquery/dist/jquery.min.js',
-        'node_modules/uuid/dist/umd/uuid.min.js',
         'src/plugins/js/clipboard.min.js',
         'src/plugins/js/spectrum.min.js',
         'src/plugins/js/jquery-ui.min.js',
@@ -138,10 +137,11 @@ function clean() {
 }
 
 // proxy middleware
-const apiProxy = createProxyMiddleware('/luckysheet/', {
-    target: 'http://luckysheet.lashuju.com/', // set your server address
-    changeOrigin: true, // for vhosted sites
-    ws: true, // proxy websockets
+const apiProxy = createProxyMiddleware({
+    context: '/luckysheet/',
+    target: 'http://luckysheet.lashuju.com/',
+    changeOrigin: true,
+    ws: true,
 });
 
 // Static server
@@ -149,7 +149,7 @@ function serve(done) {
     browserSync.init({
         server: {
             baseDir: paths.dist,
-            middleware: [apiProxy],//proxy
+            middleware: [],//proxy
         },
         ghostMode: false, //默认true，滚动和表单在任何设备上输入将被镜像到所有设备里，会影响本地的协同编辑消息，故关闭
     }, done)

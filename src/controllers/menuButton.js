@@ -4427,7 +4427,6 @@ const menuButton = {
   },
   checkstatus: function(d, r, c, a) {
     if (d == null || d[r] == null) {
-      console.warn('It\'s incorrect data', r, c);
       return null;
     }
     const foucsStatus = d[r][c];
