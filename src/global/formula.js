@@ -24,16 +24,16 @@ import {convertSpanToShareString, isInlineStringCell} from '../controllers/inlin
 // import luckysheet_function from '../function/luckysheet_function';
 // import functionlist from '../function/functionlist';
 import {
-    luckysheet_calcADPMM,
-    luckysheet_compareWith,
-    luckysheet_getarraydata,
-    luckysheet_getcelldata,
-    luckysheet_getSpecialReference,
-    luckysheet_getValue,
-    luckysheet_indirect_check,
-    luckysheet_indirect_check_return,
-    luckysheet_offset_check,
-    luckysheet_parseData,
+  luckysheet_calcADPMM,
+  luckysheet_compareWith,
+  luckysheet_getarraydata,
+  luckysheet_getcelldata,
+  luckysheet_getSpecialReference,
+  luckysheet_getValue,
+  luckysheet_indirect_check,
+  luckysheet_indirect_check_return,
+  luckysheet_offset_check,
+  luckysheet_parseData,
 } from '../function/func';
 import Store from '../store';
 import locale from '../locale/locale';
@@ -4255,7 +4255,7 @@ const luckysheetformula = {
             }
 
             // 修复类似=1--1、=1---1、=1+--+1--1这类连续+-混合写法计算结果和wps和office不一致的bug, by @kdevilpf 2023-10-08
-            for (ls = i + 1; ls < funcstack.length; ls++) {
+            for (let ls = i + 1; ls < funcstack.length; ls++) {
               if (['--', '++'].includes(s + funcstack[ls])) {
                 s = '+';
               } else if (['-+', '+-'].includes(s + funcstack[ls])) {

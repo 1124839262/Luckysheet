@@ -5151,7 +5151,7 @@ export default function luckysheetHandler() {
       return;
     }
 
-    luckysheetextendtable('row', Store.flowdata.length - 1, value);
+    luckysheetextendtable('row', Store.flowdata.length - 1, value, 'rightbottom');
   });
 
   $('#luckysheet-bottom-return-top').on('click', function(e) {

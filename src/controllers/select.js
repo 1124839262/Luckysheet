@@ -1,4 +1,4 @@
-import menuButton from './menuButton';
+import {mergeborer} from './mergeHelper';
 import formula from '../global/formula';
 import {dynamicArrayHightShow} from '../global/dynamicArray';
 import {colLocationByIndex, rowLocationByIndex} from '../global/location';
@@ -62,7 +62,7 @@ function selectHightlightShow(isRestore = false) {
       let col_f = Store.visibledatacolumn[cf],
         col_pre_f = cf - 1 == -1 ? 0 : Store.visibledatacolumn[cf - 1];
 
-      const margeset = menuButton.mergeborer(Store.flowdata, rf, cf);
+      const margeset = mergeborer(Store.flowdata, rf, cf);
       if (margeset) {
         row_f = margeset.row[1];
         row_pre_f = margeset.row[0];
