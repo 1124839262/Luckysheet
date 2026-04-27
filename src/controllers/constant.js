@@ -1,25 +1,9 @@
 import locale from '../locale/locale';
 import Store from '../store';
 import luckysheetConfigsetting from './luckysheetConfigsetting';
-//import {getObjType} from '../utils/util';
+import {getObjType} from '../utils/util';
 import {createToolbarHtml} from './toolbar';
 
-function getObjType(obj) {
-  const toString = Object.prototype.toString;
-  const map = {
-    '[object Boolean]': 'boolean',
-    '[object Number]': 'number',
-    '[object String]': 'string',
-    '[object Function]': 'function',
-    '[object Array]': 'array',
-    '[object Date]': 'date',
-    '[object RegExp]': 'regExp',
-    '[object Undefined]': 'undefined',
-    '[object Null]': 'null',
-    '[object Object]': 'object',
-  };
-  return map[toString.call(obj)];
-}
 //dom variable
 const gridHTML = function() {
   const _locale = locale();

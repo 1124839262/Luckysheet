@@ -1,6 +1,5 @@
 import locale from '../locale/locale';
 import luckysheetConfigsetting from './luckysheetConfigsetting';
-
 import {camel2split, getObjType} from '../utils/util';
 
 // 默认的工具栏按钮

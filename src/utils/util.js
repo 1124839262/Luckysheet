@@ -1,4 +1,3 @@
-import {columeHeader_word, luckysheetdefaultFont} from '../controllers/constant';
 import {isdatatype, isdatatypemulti} from '../global/datecontroll';
 import {hasChinaword, isRealNum} from '../global/validate';
 import Store from '../store';
