@@ -3,7 +3,6 @@ import {hasChinaword, isRealNum} from '../global/validate';
 import Store from '../store';
 import locale from '../locale/locale';
 import numeral from 'numeral';
-// import method from '../global/method';
 
 /**
  * Common tool methods

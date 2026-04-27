@@ -21,8 +21,6 @@ import {colLocation, colLocationByIndex, mouseposition, rowLocation} from './loc
 import {luckysheetRangeLast} from './cursorPos';
 import {jfrefreshgrid} from './refresh';
 import {convertSpanToShareString, isInlineStringCell} from '../controllers/inlineString';
-// import luckysheet_function from '../function/luckysheet_function';
-// import functionlist from '../function/functionlist';
 import {
   luckysheet_calcADPMM,
   luckysheet_compareWith,
