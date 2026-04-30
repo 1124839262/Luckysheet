@@ -3,6 +3,7 @@ import {hasChinaword, isRealNum} from '../global/validate';
 import Store from '../store';
 import locale from '../locale/locale';
 import numeral from 'numeral';
+import {columeHeader_word, luckysheetdefaultFont} from "../controllers/constant";
 
 /**
  * Common tool methods
@@ -264,6 +265,88 @@ function chatatABC(n) {
   }
 
   return s.toUpperCase();
+}
+
+/**
+ * 将列字母转换为列索引(从0开始)
+ * @param {string} colLetter - 列字母,如 "A", "Z", "AA"
+ * @returns {number} 列索引,如 0, 25, 26
+ */
+function ABCtoIndex(colLetter) {
+  if (!colLetter || typeof colLetter !== 'string') {
+    return -1;
+  }
+  
+  colLetter = colLetter.toUpperCase();
+  let index = 0;
+  
+  for (let i = 0; i < colLetter.length; i++) {
+    const charCode = colLetter.charCodeAt(i) - 'A'.charCodeAt(0) + 1;
+    index = index * 26 + charCode;
+  }
+  
+  return index - 1; // 转换为从0开始的索引
+}
+
+/**
+ * 将 R1C1 样式引用转换为 A1 样式引用
+ * @param {string} r1c1Ref - R1C1 样式引用,如 "R1C1", "R2C3", "R[1]C[2]"
+ * @param {number} currentRow - 当前行号(用于相对引用),可选
+ * @param {number} currentCol - 当前列号(用于相对引用),可选
+ * @returns {string} A1 样式引用,如 "A1", "C2"
+ */
+function convertR1C1toA1(r1c1Ref, currentRow, currentCol) {
+  if (!r1c1Ref || typeof r1c1Ref !== 'string') {
+    return r1c1Ref;
+  }
+  
+  // 默认当前行列(如果未提供)
+  if (currentRow === undefined) currentRow = 0;
+  if (currentCol === undefined) currentCol = 0;
+  
+  // 匹配 R1C1 格式: R[row]C[col],支持绝对和相对引用
+  // 绝对引用: R1C1, R2C3
+  // 相对引用: R[1]C[2], R[-1]C[-2]
+  const r1c1Pattern = /^R\[?(-?\d+)\]?C\[?(-?\d+)\]?$/i;
+  const match = r1c1Ref.match(r1c1Pattern);
+  
+  if (!match) {
+    // 如果不是 R1C1 格式,直接返回原值
+    return r1c1Ref;
+  }
+  
+  let rowNum = parseInt(match[1]);
+  let colNum = parseInt(match[2]);
+  
+  // 检查是否是相对引用(通过检查原始字符串中是否有方括号)
+  const isRowRelative = r1c1Ref.indexOf('R[') !== -1;
+  const isColRelative = r1c1Ref.indexOf('C[') !== -1;
+  
+  // 如果是相对引用,需要加上当前行列号
+  if (isRowRelative) {
+    rowNum = currentRow + rowNum;
+  } else {
+    // 绝对引用,R1C1 中的行号是从1开始的,需要减1转为从0开始
+    rowNum = rowNum - 1;
+  }
+  
+  if (isColRelative) {
+    colNum = currentCol + colNum;
+  } else {
+    // 绝对引用,C1 中的列号是从1开始的,需要减1转为从0开始
+    colNum = colNum - 1;
+  }
+  
+  // 验证行列号是否有效
+  if (rowNum < 0 || colNum < 0) {
+    return r1c1Ref; // 返回原值,让调用者处理错误
+  }
+  
+  // 转换为 A1 样式
+  const colLetter = chatatABC(colNum);
+  const rowNumber = rowNum + 1; // A1 样式行号从1开始
+  
+  return `${colLetter}${rowNumber}`;
 }
 
 function ceateABC(index) {
@@ -626,6 +709,7 @@ function seriesLoadScripts(scripts, options, callback) {
     // Attach handlers for all browsers
     // 异步
     s[i].onload = s[i].onreadystatechange = function() {
+      // eslint-disable-next-line no-constant-binary-expression
       if (!(/*@cc_on!@*/ 0) || this.readyState === 'loaded' || this.readyState === 'complete') {
         this.onload = this.onreadystatechange = null;
         this.parentNode.removeChild(this);
@@ -674,6 +758,7 @@ function parallelLoadScripts(scripts, options, callback) {
     // Attach handlers for all browsers
     // 异步
     s[i].onload = s[i].onreadystatechange = function() {
+      // eslint-disable-next-line no-constant-binary-expression
       if (!(/*@cc_on!@*/ 0) || this.readyState === 'loaded' || this.readyState === 'complete') {
         loaded++;
         this.onload = this.onreadystatechange = null;
@@ -899,6 +984,8 @@ export {
   rgbTohex,
   ABCatNum,
   chatatABC,
+  ABCtoIndex,
+  convertR1C1toA1,
   ceateABC,
   createABCdim,
   getByteLen,

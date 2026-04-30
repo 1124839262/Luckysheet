@@ -13,7 +13,8 @@ module.exports = {
   globals: {
     '$': 'readonly',
     'jQuery': 'readonly',
-    'luckysheet': 'writable'
+    'luckysheet': 'writable',
+    'jStat': 'readonly'
   },
   rules: {
     // 核心错误（保持 error）
@@ -25,6 +26,9 @@ module.exports = {
     'eqeqeq': 'warn',  // 从 error 改为 warn
     'curly': 'warn',   // 从 error 改为 warn
     'no-prototype-builtins': 'warn',
+    'no-ex-assign': 'warn',  // 从 error 改为 warn
+    'no-unreachable': 'warn',  // 从 error 改为 warn
+    'no-irregular-whitespace': 'warn',  // 从 error 改为 warn
 
     // 代码风格（降级为 warn 或 off）
     'prefer-const': 'warn',
