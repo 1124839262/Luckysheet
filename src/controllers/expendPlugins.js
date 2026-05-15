@@ -22,7 +22,11 @@ const isDemo = true;
 function initPlugins(plugins , options){
   if(plugins.length){
     plugins.forEach(plugin => {
-      pluginsObj[plugin.name](options, plugin.config, isDemo);
+      if (pluginsObj[plugin.name]) {
+        pluginsObj[plugin.name](options, plugin.config, isDemo);
+      } else {
+        console.warn(`Luckysheet plugin "${plugin.name}" is not found. Please make sure the plugin is properly registered.`);
+      }
     });
   }
 }

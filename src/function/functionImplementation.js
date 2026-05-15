@@ -11872,12 +11872,12 @@ const functionImplementation = {
         }
     },
   'CUMPRINC': function() {
-    //必要参数个数错误检测
+    // 必要参数个数错误检测
     if (arguments.length < this.m[0] || arguments.length > this.m[1]) {
       return formula.error.na;
     }
 
-    //参数类型错误检测
+    // 参数类型错误检测
     for (var i = 0; i < arguments.length; i++) {
       const p = formula.errorParamCheck(this.p, arguments[i], i);
 
@@ -11887,114 +11887,121 @@ const functionImplementation = {
     }
 
     try {
-      //利率
-      let rate = func_methods.getFirstValue(arguments[0]);
-      if(valueIsError(rate)){
-        return rate;
+      // 利率
+      let interestRate = func_methods.getFirstValue(arguments[0]);
+      if(valueIsError(interestRate)){
+        return interestRate;
       }
 
-      if(!isRealNum(rate)){
+      if(!isRealNum(interestRate)){
         return formula.error.v;
       }
 
-      rate = parseFloat(rate);
+      interestRate = parseFloat(interestRate);
 
-      //总付款期数
-      let nper = func_methods.getFirstValue(arguments[1]);
-      if(valueIsError(nper)){
-        return nper;
+      // 总付款期数
+      let totalPeriods = func_methods.getFirstValue(arguments[1]);
+      if(valueIsError(totalPeriods)){
+        return totalPeriods;
       }
 
-      if(!isRealNum(nper)){
+      if(!isRealNum(totalPeriods)){
         return formula.error.v;
       }
 
-      nper = parseFloat(nper);
+      totalPeriods = parseFloat(totalPeriods);
 
-      //年金的现值
-      let pv = func_methods.getFirstValue(arguments[2]);
-      if(valueIsError(pv)){
-        return pv;
+      // 年金的现值
+      let presentValue = func_methods.getFirstValue(arguments[2]);
+      if(valueIsError(presentValue)){
+        return presentValue;
       }
 
-      if(!isRealNum(pv)){
+      if(!isRealNum(presentValue)){
         return formula.error.v;
       }
 
-      pv = parseFloat(pv);
+      presentValue = parseFloat(presentValue);
 
-      //首期
-      let start_period = func_methods.getFirstValue(arguments[3]);
-      if(valueIsError(start_period)){
-        return start_period;
+      // 首期
+      let startPeriod = func_methods.getFirstValue(arguments[3]);
+      if(valueIsError(startPeriod)){
+        return startPeriod;
       }
 
-      if(!isRealNum(start_period)){
+      if(!isRealNum(startPeriod)){
         return formula.error.v;
       }
 
-      start_period = parseInt(start_period);
+      startPeriod = parseInt(startPeriod);
 
-      //末期
-      let end_period = func_methods.getFirstValue(arguments[4]);
-      if(valueIsError(end_period)){
-        return end_period;
+      // 末期
+      let endPeriod = func_methods.getFirstValue(arguments[4]);
+      if(valueIsError(endPeriod)){
+        return endPeriod;
       }
 
-      if(!isRealNum(end_period)){
+      if(!isRealNum(endPeriod)){
         return formula.error.v;
       }
 
-      end_period = parseInt(end_period);
+      endPeriod = parseInt(endPeriod);
 
-      //指定各期的付款时间是在期初还是期末
-      let type = func_methods.getFirstValue(arguments[5]);
-      if(valueIsError(type)){
-        return type;
+      // 指定各期的付款时间是在期初还是期末
+      let paymentType = func_methods.getFirstValue(arguments[5]);
+      if(valueIsError(paymentType)){
+        return paymentType;
       }
 
-      if(!isRealNum(type)){
+      if(!isRealNum(paymentType)){
         return formula.error.v;
       }
 
-      type = parseFloat(type);
+      paymentType = parseFloat(paymentType);
 
-      if(rate <= 0 || nper <= 0 || pv <= 0){
+      // 参数有效性检查
+      if(interestRate <= 0 || totalPeriods <= 0 || presentValue <= 0){
         return formula.error.nm;
       }
 
-      if(start_period < 1 || end_period < 1 || start_period > end_period){
+      if(startPeriod < 1 || endPeriod < 1 || startPeriod > endPeriod){
         return formula.error.nm;
       }
 
-      if(type != 0 && type != 1){
+      if(paymentType !== 0 && paymentType !== 1){
         return formula.error.nm;
       }
 
-      //计算
-      const payment = window.luckysheet_function.PMT.f(rate, nper, pv, 0, type);
-      let principal = 0;
+      // 计算每期付款金额
+      const periodicPayment = window.luckysheet_function.PMT.f(interestRate, totalPeriods, presentValue, 0, paymentType);
 
-      if (start_period === 1) {
-        if (type === 0) {
-          principal = payment + pv * rate;
+      // 累计本金支付额
+      let cumulativePrincipal = 0;
+
+      // 如果起始期是第1期，需要特殊处理
+      if (startPeriod === 1) {
+        if (paymentType === 0) {
+          // 期末付款情况
+          cumulativePrincipal = periodicPayment + presentValue * interestRate;
+        } else {
+          // 期初付款情况
+          cumulativePrincipal = periodicPayment;
         }
-        else {
-          principal = payment;
-        }
-        start_period++;
+        startPeriod++; // 调整起始期
       }
 
-      for (var i = start_period; i <= end_period; i++) {
-        if (type > 0) {
-          principal += payment - (window.luckysheet_function.FV.f(rate, i - 2, payment, pv, 1) - payment) * rate;
-        }
-        else {
-          principal += payment - window.luckysheet_function.FV.f(rate, i - 1, payment, pv, 0) * rate;
+      // 循环计算从调整后的起始期到结束期的累计本金
+      for (var i = startPeriod; i <= endPeriod; i++) {
+        if (paymentType > 0) {
+          // 期初付款情况下计算累计本金
+          cumulativePrincipal += periodicPayment - (window.luckysheet_function.FV.f(interestRate, i - 2, periodicPayment, presentValue, 1) - periodicPayment) * interestRate;
+        } else {
+          // 期末付款情况下计算累计本金
+          cumulativePrincipal += periodicPayment - window.luckysheet_function.FV.f(interestRate, i - 1, periodicPayment, presentValue, 0) * interestRate;
         }
       }
 
-      return principal;
+      return cumulativePrincipal;
     }
     catch (e) {
       let err = e;
@@ -12003,12 +12010,12 @@ const functionImplementation = {
     }
   },
   'COUPNUM': function() {
-    //必要参数个数错误检测
+    // 必要参数个数错误检测
     if (arguments.length < this.m[0] || arguments.length > this.m[1]) {
       return formula.error.na;
     }
 
-    //参数类型错误检测
+    // 参数类型错误检测
     for (let i = 0; i < arguments.length; i++) {
       const p = formula.errorParamCheck(this.p, arguments[i], i);
 
@@ -12018,7 +12025,7 @@ const functionImplementation = {
     }
 
     try {
-      //结算日
+      // 结算日
       const settlement = func_methods.getCellDate(arguments[0]);
       if(valueIsError(settlement)){
         return settlement;
@@ -12028,7 +12035,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //到期日
+      // 到期日
       const maturity = func_methods.getCellDate(arguments[1]);
       if(valueIsError(maturity)){
         return maturity;
@@ -12038,7 +12045,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //年付息次数
+      // 年付息次数
       let frequency = func_methods.getFirstValue(arguments[2]);
       if(valueIsError(frequency)){
         return frequency;
@@ -12050,10 +12057,10 @@ const functionImplementation = {
 
       frequency = parseInt(frequency);
 
-      //日计数基准类型
-      var basis = 0;
-      if(arguments.length == 4){
-        var basis = func_methods.getFirstValue(arguments[3]);
+      // 日计数基准类型
+      let basis = 0;
+      if(arguments.length === 4){
+        basis = func_methods.getFirstValue(arguments[3]);
         if(valueIsError(basis)){
           return basis;
         }
@@ -12065,7 +12072,8 @@ const functionImplementation = {
         basis = parseInt(basis);
       }
 
-      if(frequency != 1 && frequency != 2 && frequency != 4){
+      // 参数有效性检查
+      if(frequency !== 1 && frequency !== 2 && frequency !== 4){
         return formula.error.nm;
       }
 
@@ -12073,67 +12081,67 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
-      //计算
-      let sd = dayjs(settlement).date();
-      const sm = dayjs(settlement).month() + 1;
-      const sy = dayjs(settlement).year();
-      let ed = dayjs(maturity).date();
-      const em = dayjs(maturity).month() + 1;
-      const ey = dayjs(maturity).year();
+      // 计算
+      let startDateDay = dayjs(settlement).date();
+      const startMonth = dayjs(settlement).month() + 1;
+      const startYear = dayjs(settlement).year();
+      let endDateDay = dayjs(maturity).date();
+      const endMonth = dayjs(maturity).month() + 1;
+      const endYear = dayjs(maturity).year();
 
       let result;
       switch (basis) {
-      case 0: // US (NASD) 30/360
-        if (sd === 31 && ed === 31) {
-          sd = 30;
-          ed = 30;
-        }
-        else if (sd === 31) {
-          sd = 30;
-        }
-        else if (sd === 30 && ed === 31) {
-          ed = 30;
-        }
-
-        result = ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / (360 / frequency);
-
-        break;
-      case 1: // Actual/actual
-        var ylength = 365;
-        if (sy === ey || ((sy + 1) === ey) && ((sm > em) || ((sm === em) && (sd >= ed)))) {
-          if ((sy === ey && func_methods.isLeapYear(sy)) || func_methods.feb29Between(settlement, maturity) || (em === 1 && ed === 29)) {
-            ylength = 366;
+        case 0: // US (NASD) 30/360
+          if (startDateDay === 31 && endDateDay === 31) {
+            startDateDay = 30;
+            endDateDay = 30;
+          }
+          else if (startDateDay === 31) {
+            startDateDay = 30;
+          }
+          else if (startDateDay === 30 && endDateDay === 31) {
+            endDateDay = 30;
           }
 
-          return dayjs(maturity).diff(dayjs(settlement), 'days') / (ylength / frequency);
-        }
+          result = ((endDateDay + endMonth * 30 + endYear * 360) - (startDateDay + startMonth * 30 + startYear * 360)) / (360 / frequency);
 
-        var years = (ey - sy) + 1;
-        var days = (dayjs().set({ 'year': ey + 1, 'month': 0, 'date': 1 }) - dayjs().set({ 'year': sy, 'month': 0, 'date': 1 })) / 1000 / 60 / 60 / 24;
-        var average = days / years;
+          break;
+        case 1: // Actual/actual
+          { let yearLength = 365;
+          if (startYear === endYear || ((startYear + 1) === endYear) && ((startMonth > endMonth) || ((startMonth === endMonth) && (startDateDay >= endDateDay)))) {
+            if ((startYear === endYear && func_methods.isLeapYear(startYear)) || func_methods.feb29Between(settlement, maturity) || (endMonth === 1 && endDateDay === 29)) {
+              yearLength = 366;
+            }
 
-        result = dayjs(maturity).diff(dayjs(settlement), 'days') / (average / frequency);
+            return dayjs(maturity).diff(dayjs(settlement), 'days') / (yearLength / frequency);
+          }
 
-        break;
-      case 2: // Actual/360
-        result = dayjs(maturity).diff(dayjs(settlement), 'days') / (360 / frequency);
+          const years = (endYear - startYear) + 1;
+          const days = (dayjs().set({ 'year': endYear + 1, 'month': 0, 'date': 1 }).valueOf() - dayjs().set({ 'year': startYear, 'month': 0, 'date': 1 }).valueOf()) / 1000 / 60 / 60 / 24;
+          const average = days / years;
 
-        break;
-      case 3: // Actual/365
-        result = dayjs(maturity).diff(dayjs(settlement), 'days') / (365 / frequency);
+          result = dayjs(maturity).diff(dayjs(settlement), 'days') / (average / frequency);
 
-        break;
-      case 4: // European 30/360
-        result = ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / (360 / frequency);
+          break; }
+        case 2: // Actual/360
+          result = dayjs(maturity).diff(dayjs(settlement), 'days') / (360 / frequency);
 
-        break;
+          break;
+        case 3: // Actual/365
+          result = dayjs(maturity).diff(dayjs(settlement), 'days') / (365 / frequency);
+
+          break;
+        case 4: // European 30/360
+          result = ((endDateDay + endMonth * 30 + endYear * 360) - (startDateDay + startMonth * 30 + startYear * 360)) / (360 / frequency);
+
+          break;
       }
 
-      return Math.round(result);
+      return Math.floor(result); // 使用Math.floor而不是Math.round，因为这是计算票息数量，应该向下取整
     }
     catch (e) {
       let err = e;
@@ -12142,12 +12150,12 @@ const functionImplementation = {
     }
   },
   'SYD': function() {
-    //必要参数个数错误检测
+    // 必要参数个数错误检测
     if (arguments.length < this.m[0] || arguments.length > this.m[1]) {
       return formula.error.na;
     }
 
-    //参数类型错误检测
+    // 参数类型错误检测
     for (let i = 0; i < arguments.length; i++) {
       const p = formula.errorParamCheck(this.p, arguments[i], i);
 
@@ -12157,7 +12165,7 @@ const functionImplementation = {
     }
 
     try {
-      //资产原值
+      // 资产原值
       let cost = func_methods.getFirstValue(arguments[0]);
       if(valueIsError(cost)){
         return cost;
@@ -12169,7 +12177,7 @@ const functionImplementation = {
 
       cost = parseFloat(cost);
 
-      //资产残值
+      // 资产残值
       let salvage = func_methods.getFirstValue(arguments[1]);
       if(valueIsError(salvage)){
         return salvage;
@@ -12181,7 +12189,7 @@ const functionImplementation = {
 
       salvage = parseFloat(salvage);
 
-      //资产的折旧期数
+      // 资产的折旧期数
       let life = func_methods.getFirstValue(arguments[2]);
       if(valueIsError(life)){
         return life;
@@ -12193,7 +12201,7 @@ const functionImplementation = {
 
       life = parseFloat(life);
 
-      //在使用期限内要计算折旧的折旧期
+      // 在使用期限内要计算折旧的折旧期
       let period = func_methods.getFirstValue(arguments[3]);
       if(valueIsError(period)){
         return period;
@@ -12205,7 +12213,8 @@ const functionImplementation = {
 
       period = parseInt(period);
 
-      if(life == 0){
+      // 参数有效性检查
+      if(life <= 0){
         return formula.error.nm;
       }
 
@@ -12213,6 +12222,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
+      // 计算年数总和折旧
       return ((cost - salvage) * (life - period + 1) * 2) / (life * (life + 1));
     }
     catch (e) {
@@ -12222,12 +12232,12 @@ const functionImplementation = {
     }
   },
   'TBILLEQ': function() {
-    //必要参数个数错误检测
+    // 必要参数个数错误检测
     if (arguments.length < this.m[0] || arguments.length > this.m[1]) {
       return formula.error.na;
     }
 
-    //参数类型错误检测
+    // 参数类型错误检测
     for (let i = 0; i < arguments.length; i++) {
       const p = formula.errorParamCheck(this.p, arguments[i], i);
 
@@ -12237,7 +12247,7 @@ const functionImplementation = {
     }
 
     try {
-      //结算日
+      // 结算日
       const settlement = func_methods.getCellDate(arguments[0]);
       if(valueIsError(settlement)){
         return settlement;
@@ -12247,7 +12257,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //到期日
+      // 到期日
       const maturity = func_methods.getCellDate(arguments[1]);
       if(valueIsError(maturity)){
         return maturity;
@@ -12257,7 +12267,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //债券购买时的贴现率
+      // 债券购买时的贴现率
       let discount = func_methods.getFirstValue(arguments[2]);
       if(valueIsError(discount)){
         return discount;
@@ -12273,11 +12283,12 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) > 0){
+      if(dayjs(settlement).isAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
-      if(dayjs(maturity) - dayjs(settlement) > 365 * 24 * 60 * 60 * 1000){
+      // 检查到期日与结算日之间的天数不超过365天
+      if(dayjs(maturity).diff(dayjs(settlement), 'days') > 365){
         return formula.error.nm;
       }
 
@@ -12290,12 +12301,12 @@ const functionImplementation = {
     }
   },
   'TBILLYIELD': function() {
-    //必要参数个数错误检测
+    // 必要参数个数错误检测
     if (arguments.length < this.m[0] || arguments.length > this.m[1]) {
       return formula.error.na;
     }
 
-    //参数类型错误检测
+    // 参数类型错误检测
     for (let i = 0; i < arguments.length; i++) {
       const p = formula.errorParamCheck(this.p, arguments[i], i);
 
@@ -12305,7 +12316,7 @@ const functionImplementation = {
     }
 
     try {
-      //结算日
+      // 结算日
       const settlement = func_methods.getCellDate(arguments[0]);
       if(valueIsError(settlement)){
         return settlement;
@@ -12315,7 +12326,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //到期日
+      // 到期日
       const maturity = func_methods.getCellDate(arguments[1]);
       if(valueIsError(maturity)){
         return maturity;
@@ -12325,7 +12336,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //有价证券的价格
+      // 有价证券的价格
       let pr = func_methods.getFirstValue(arguments[2]);
       if(valueIsError(pr)){
         return pr;
@@ -12341,11 +12352,12 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
-      if(dayjs(maturity) - dayjs(settlement) > 365 * 24 * 60 * 60 * 1000){
+      // 检查到期日与结算日之间的天数不超过365天
+      if(dayjs(maturity).diff(dayjs(settlement), 'days') > 365){
         return formula.error.nm;
       }
 
@@ -12358,12 +12370,12 @@ const functionImplementation = {
     }
   },
   'TBILLPRICE': function() {
-    //必要参数个数错误检测
+    // 必要参数个数错误检测
     if (arguments.length < this.m[0] || arguments.length > this.m[1]) {
       return formula.error.na;
     }
 
-    //参数类型错误检测
+    // 参数类型错误检测
     for (let i = 0; i < arguments.length; i++) {
       const p = formula.errorParamCheck(this.p, arguments[i], i);
 
@@ -12373,7 +12385,7 @@ const functionImplementation = {
     }
 
     try {
-      //结算日
+      // 结算日
       const settlement = func_methods.getCellDate(arguments[0]);
       if(valueIsError(settlement)){
         return settlement;
@@ -12383,7 +12395,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //到期日
+      // 到期日
       const maturity = func_methods.getCellDate(arguments[1]);
       if(valueIsError(maturity)){
         return maturity;
@@ -12393,7 +12405,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //有价证券的价格
+      // 有价证券的贴现率
       let discount = func_methods.getFirstValue(arguments[2]);
       if(valueIsError(discount)){
         return discount;
@@ -12409,11 +12421,12 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) > 0){
+      if(dayjs(settlement).isAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
-      if(dayjs(maturity) - dayjs(settlement) > 365 * 24 * 60 * 60 * 1000){
+      // 检查到期日与结算日之间的天数不超过365天
+      if(dayjs(maturity).diff(dayjs(settlement), 'days') > 365){
         return formula.error.nm;
       }
 
@@ -12426,12 +12439,12 @@ const functionImplementation = {
     }
   },
   'PV': function() {
-    //必要参数个数错误检测
+    // 必要参数个数错误检测
     if (arguments.length < this.m[0] || arguments.length > this.m[1]) {
       return formula.error.na;
     }
 
-    //参数类型错误检测
+    // 参数类型错误检测
     for (let i = 0; i < arguments.length; i++) {
       const p = formula.errorParamCheck(this.p, arguments[i], i);
 
@@ -12441,7 +12454,7 @@ const functionImplementation = {
     }
 
     try {
-      //利率
+      // 利率
       let rate = func_methods.getFirstValue(arguments[0]);
       if(valueIsError(rate)){
         return rate;
@@ -12453,7 +12466,7 @@ const functionImplementation = {
 
       rate = parseFloat(rate);
 
-      //总付款期数
+      // 总付款期数
       let nper = func_methods.getFirstValue(arguments[1]);
       if(valueIsError(nper)){
         return nper;
@@ -12465,7 +12478,7 @@ const functionImplementation = {
 
       nper = parseFloat(nper);
 
-      //每期的付款金额
+      // 每期的付款金额
       let pmt = func_methods.getFirstValue(arguments[2]);
       if(valueIsError(pmt)){
         return pmt;
@@ -12477,7 +12490,7 @@ const functionImplementation = {
 
       pmt = parseFloat(pmt);
 
-      //最后一次付款后希望得到的现金余额
+      // 最后一次付款后希望得到的现金余额
       let fv = 0;
       if(arguments.length >= 4){
         fv = func_methods.getFirstValue(arguments[3]);
@@ -12492,7 +12505,7 @@ const functionImplementation = {
         fv = parseFloat(fv);
       }
 
-      //指定各期的付款时间是在期初还是期末
+      // 指定各期的付款时间是在期初还是期末
       let type = 0;
       if(arguments.length >= 5){
         type = func_methods.getFirstValue(arguments[4]);
@@ -12507,16 +12520,17 @@ const functionImplementation = {
         type = parseFloat(type);
       }
 
-      if(type != 0 && type != 1){
+      if(type !== 0 && type !== 1){
         return formula.error.nm;
       }
 
-      //计算
+      // 计算
+      let result;
       if (rate === 0) {
-        var result = -pmt * nper - fv;
+        result = -pmt * nper - fv;
       }
       else {
-        var result = (((1 - Math.pow(1 + rate, nper)) / rate) * pmt * (1 + rate * type) - fv) / Math.pow(1 + rate, nper);
+        result = (((1 - Math.pow(1 + rate, nper)) / rate) * pmt * (1 + rate * type) - fv) / Math.pow(1 + rate, nper);
       }
 
       return result;
@@ -12528,12 +12542,12 @@ const functionImplementation = {
     }
   },
   'ACCRINT': function() {
-    //必要参数个数错误检测
+    // 必要参数个数错误检测
     if (arguments.length < this.m[0] || arguments.length > this.m[1]) {
       return formula.error.na;
     }
 
-    //参数类型错误检测
+    // 参数类型错误检测
     for (let i = 0; i < arguments.length; i++) {
       const p = formula.errorParamCheck(this.p, arguments[i], i);
 
@@ -12543,7 +12557,7 @@ const functionImplementation = {
     }
 
     try {
-      //有价证券的发行日
+      // 有价证券的发行日
       const issue = func_methods.getCellDate(arguments[0]);
       if(valueIsError(issue)){
         return issue;
@@ -12553,17 +12567,17 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //有价证券的首次计息日
-      const first_interest = func_methods.getCellDate(arguments[1]);
-      if(valueIsError(first_interest)){
-        return first_interest;
+      // 有价证券的首次计息日
+      const firstInterest = func_methods.getCellDate(arguments[1]);
+      if(valueIsError(firstInterest)){
+        return firstInterest;
       }
 
-      if(!dayjs(first_interest).isValid()){
+      if(!dayjs(firstInterest).isValid()){
         return formula.error.v;
       }
 
-      //有价证券的结算日
+      // 有价证券的结算日
       const settlement = func_methods.getCellDate(arguments[2]);
       if(valueIsError(settlement)){
         return settlement;
@@ -12573,7 +12587,7 @@ const functionImplementation = {
         return formula.error.v;
       }
 
-      //有价证券的年息票利率
+      // 有价证券的年息票利率
       let rate = func_methods.getFirstValue(arguments[3]);
       if(valueIsError(rate)){
         return rate;
@@ -12585,7 +12599,7 @@ const functionImplementation = {
 
       rate = parseFloat(rate);
 
-      //证券的票面值
+      // 证券的票面值
       let par = func_methods.getFirstValue(arguments[4]);
       if(valueIsError(par)){
         return par;
@@ -12597,7 +12611,7 @@ const functionImplementation = {
 
       par = parseFloat(par);
 
-      //年付息次数
+      // 年付息次数
       let frequency = func_methods.getFirstValue(arguments[5]);
       if(valueIsError(frequency)){
         return frequency;
@@ -12609,7 +12623,7 @@ const functionImplementation = {
 
       frequency = parseInt(frequency);
 
-      //日计数基准类型
+      // 日计数基准类型
       let basis = 0;
       if(arguments.length >= 7){
         basis = func_methods.getFirstValue(arguments[6]);
@@ -12624,13 +12638,13 @@ const functionImplementation = {
         basis = parseInt(basis);
       }
 
-      //当结算日期晚于首次计息日期时用于计算总应计利息的方法
-      let calc_method = true;
-      if(arguments.length == 8){
-        calc_method = func_methods.getCellBoolen(arguments[7]);
+      // 当结算日期晚于首次计息日期时用于计算总应计利息的方法
+      let calcMethod = true;
+      if(arguments.length === 8){
+        calcMethod = func_methods.getCellBoolen(arguments[7]);
 
-        if(valueIsError(calc_method)){
-          return calc_method;
+        if(valueIsError(calcMethod)){
+          return calcMethod;
         }
       }
 
@@ -12638,7 +12652,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(frequency != 1 && frequency != 2 && frequency != 4){
+      if(frequency !== 1 && frequency !== 2 && frequency !== 4){
         return formula.error.nm;
       }
 
@@ -12646,120 +12660,120 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(issue) - dayjs(settlement) >= 0){
+      if(dayjs(issue).isSameOrAfter(dayjs(settlement))){
         return formula.error.nm;
       }
 
-      //计算
+      // 计算
       let result;
-      if(dayjs(settlement) - dayjs(first_interest) >= 0 && !calc_method){
-        var sd = dayjs(first_interest).date();
-        var sm = dayjs(first_interest).month() + 1;
-        var sy = dayjs(first_interest).year();
-        var ed = dayjs(settlement).date();
-        var em = dayjs(settlement).month() + 1;
-        var ey = dayjs(settlement).year();
+      if(dayjs(settlement).isSameOrAfter(dayjs(firstInterest)) && !calcMethod){
+        let startDateDay = dayjs(firstInterest).date();
+        let startMonth = dayjs(firstInterest).month() + 1;
+        let startYear = dayjs(firstInterest).year();
+        let endDateDay = dayjs(settlement).date();
+        let endMonth = dayjs(settlement).month() + 1;
+        let endYear = dayjs(settlement).year();
 
         switch (basis) {
-        case 0: // US (NASD) 30/360
-          if (sd === 31 && ed === 31) {
-            sd = 30;
-            ed = 30;
-          }
-          else if (sd === 31) {
-            sd = 30;
-          }
-          else if (sd === 30 && ed === 31) {
-            ed = 30;
-          }
-
-          result = ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / 360;
-
-          break;
-        case 1: // Actual/actual
-          var ylength = 365;
-          if (sy === ey || ((sy + 1) === ey) && ((sm > em) || ((sm === em) && (sd >= ed)))) {
-            if ((sy === ey && func_methods.isLeapYear(sy)) || func_methods.feb29Between(first_interest, settlement) || (em === 1 && ed === 29)) {
-              ylength = 366;
+          case 0: // US (NASD) 30/360
+            if (startDateDay === 31 && endDateDay === 31) {
+              startDateDay = 30;
+              endDateDay = 30;
+            }
+            else if (startDateDay === 31) {
+              startDateDay = 30;
+            }
+            else if (startDateDay === 30 && endDateDay === 31) {
+              endDateDay = 30;
             }
 
-            return dayjs(settlement).diff(dayjs(first_interest), 'days') / ylength;
-          }
+            result = ((endDateDay + endMonth * 30 + endYear * 360) - (startDateDay + startMonth * 30 + startYear * 360)) / 360;
 
-          var years = (ey - sy) + 1;
-          var days = (dayjs().set({ 'year': ey + 1, 'month': 0, 'date': 1 }) - dayjs().set({ 'year': sy, 'month': 0, 'date': 1 })) / 1000 / 60 / 60 / 24;
-          var average = days / years;
+            break;
+          case 1: // Actual/actual
+            { let yearLength = 365;
+            if (startYear === endYear || ((startYear + 1) === endYear) && ((startMonth > endMonth) || ((startMonth === endMonth) && (startDateDay >= endDateDay)))) {
+              if ((startYear === endYear && func_methods.isLeapYear(startYear)) || func_methods.feb29Between(firstInterest, settlement) || (endMonth === 1 && endDateDay === 29)) {
+                yearLength = 366;
+              }
 
-          result = dayjs(settlement).diff(dayjs(first_interest), 'days') / average;
+              return dayjs(settlement).diff(dayjs(firstInterest), 'days') / yearLength;
+            }
 
-          break;
-        case 2: // Actual/360
-          result = dayjs(settlement).diff(dayjs(first_interest), 'days') / 360;
+            const years = (endYear - startYear) + 1;
+            const days = (dayjs().set({ 'year': endYear + 1, 'month': 0, 'date': 1 }).valueOf() - dayjs().set({ 'year': startYear, 'month': 0, 'date': 1 }).valueOf()) / 1000 / 60 / 60 / 24;
+            const average = days / years;
 
-          break;
-        case 3: // Actual/365
-          result = dayjs(settlement).diff(dayjs(first_interest), 'days') / 365;
+            result = dayjs(settlement).diff(dayjs(firstInterest), 'days') / average;
 
-          break;
-        case 4: // European 30/360
-          result = ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / 360;
+            break; }
+          case 2: // Actual/360
+            result = dayjs(settlement).diff(dayjs(firstInterest), 'days') / 360;
 
-          break;
+            break;
+          case 3: // Actual/365
+            result = dayjs(settlement).diff(dayjs(firstInterest), 'days') / 365;
+
+            break;
+          case 4: // European 30/360
+            result = ((endDateDay + endMonth * 30 + endYear * 360) - (startDateDay + startMonth * 30 + startYear * 360)) / 360;
+
+            break;
         }
       }
       else{
-        var sd = dayjs(issue).date();
-        var sm = dayjs(issue).month() + 1;
-        var sy = dayjs(issue).year();
-        var ed = dayjs(settlement).date();
-        var em = dayjs(settlement).month() + 1;
-        var ey = dayjs(settlement).year();
+        let startDateDay = dayjs(issue).date();
+        let startMonth = dayjs(issue).month() + 1;
+        let startYear = dayjs(issue).year();
+        let endDateDay = dayjs(settlement).date();
+        let endMonth = dayjs(settlement).month() + 1;
+        let endYear = dayjs(settlement).year();
 
         switch (basis) {
-        case 0: // US (NASD) 30/360
-          if (sd === 31 && ed === 31) {
-            sd = 30;
-            ed = 30;
-          }
-          else if (sd === 31) {
-            sd = 30;
-          }
-          else if (sd === 30 && ed === 31) {
-            ed = 30;
-          }
-
-          result = ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / 360;
-
-          break;
-        case 1: // Actual/actual
-          var ylength = 365;
-          if (sy === ey || ((sy + 1) === ey) && ((sm > em) || ((sm === em) && (sd >= ed)))) {
-            if ((sy === ey && func_methods.isLeapYear(sy)) || func_methods.feb29Between(issue, settlement) || (em === 1 && ed === 29)) {
-              ylength = 366;
+          case 0: // US (NASD) 30/360
+            if (startDateDay === 31 && endDateDay === 31) {
+              startDateDay = 30;
+              endDateDay = 30;
+            }
+            else if (startDateDay === 31) {
+              startDateDay = 30;
+            }
+            else if (startDateDay === 30 && endDateDay === 31) {
+              endDateDay = 30;
             }
 
-            return dayjs(settlement).diff(dayjs(issue), 'days') / ylength;
-          }
+            result = ((endDateDay + endMonth * 30 + endYear * 360) - (startDateDay + startMonth * 30 + startYear * 360)) / 360;
 
-          var years = (ey - sy) + 1;
-          var days = (dayjs().set({ 'year': ey + 1, 'month': 0, 'date': 1 }) - dayjs().set({ 'year': sy, 'month': 0, 'date': 1 })) / 1000 / 60 / 60 / 24;
-          var average = days / years;
+            break;
+          case 1: // Actual/actual
+            { let yearLength = 365;
+            if (startYear === endYear || ((startYear + 1) === endYear) && ((startMonth > endMonth) || ((startMonth === endMonth) && (startDateDay >= endDateDay)))) {
+              if ((startYear === endYear && func_methods.isLeapYear(startYear)) || func_methods.feb29Between(issue, settlement) || (endMonth === 1 && endDateDay === 29)) {
+                yearLength = 366;
+              }
 
-          result = dayjs(settlement).diff(dayjs(issue), 'days') / average;
+              return dayjs(settlement).diff(dayjs(issue), 'days') / yearLength;
+            }
 
-          break;
-        case 2: // Actual/360
-          result = dayjs(settlement).diff(dayjs(issue), 'days') / 360;
+            const years2 = (endYear - startYear) + 1;
+            const days2 = (dayjs().set({ 'year': endYear + 1, 'month': 0, 'date': 1 }).valueOf() - dayjs().set({ 'year': startYear, 'month': 0, 'date': 1 }).valueOf()) / 1000 / 60 / 60 / 24;
+            const average2 = days2 / years2;
 
-          break;
-        case 3: // Actual/365
-          result = dayjs(settlement).diff(dayjs(issue), 'days') / 365;
+            result = dayjs(settlement).diff(dayjs(issue), 'days') / average2;
 
-          break;
-        case 4: // European 30/360
-          result = ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / 360;
+            break; }
+          case 2: // Actual/360
+            result = dayjs(settlement).diff(dayjs(issue), 'days') / 360;
 
-          break;
+            break;
+          case 3: // Actual/365
+            result = dayjs(settlement).diff(dayjs(issue), 'days') / 365;
+
+            break;
+          case 4: // European 30/360
+            result = ((endDateDay + endMonth * 30 + endYear * 360) - (startDateDay + startMonth * 30 + startYear * 360)) / 360;
+
+            break;
         }
       }
 
@@ -12798,12 +12812,12 @@ const functionImplementation = {
       }
 
       //有价证券的到期日
-      const settlement = func_methods.getCellDate(arguments[1]);
-      if(valueIsError(settlement)){
-        return settlement;
+      const maturity = func_methods.getCellDate(arguments[1]);  // 修改变量名为maturity，更准确表示到期日
+      if(valueIsError(maturity)){
+        return maturity;
       }
 
-      if(!dayjs(settlement).isValid()){
+      if(!dayjs(maturity).isValid()){
         return formula.error.v;
       }
 
@@ -12833,7 +12847,7 @@ const functionImplementation = {
 
       //日计数基准类型
       let basis = 0;
-      if(arguments.length == 5){
+      if(arguments.length === 5){
         basis = func_methods.getFirstValue(arguments[4]);
         if(valueIsError(basis)){
           return basis;
@@ -12854,62 +12868,62 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(issue) - dayjs(settlement) >= 0){
+      if(dayjs(issue).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
       //计算
-      let sd = dayjs(issue).date();
-      const sm = dayjs(issue).month() + 1;
-      const sy = dayjs(issue).year();
-      let ed = dayjs(settlement).date();
-      const em = dayjs(settlement).month() + 1;
-      const ey = dayjs(settlement).year();
+      let startDateDay = dayjs(issue).date();
+      const startMonth = dayjs(issue).month() + 1;
+      const startYear = dayjs(issue).year();
+      let endDateDay = dayjs(maturity).date();
+      const endMonth = dayjs(maturity).month() + 1;
+      const endYear = dayjs(maturity).year();
 
       let result;
       switch (basis) {
       case 0: // US (NASD) 30/360
-        if (sd === 31 && ed === 31) {
-          sd = 30;
-          ed = 30;
+        if (startDateDay === 31 && endDateDay === 31) {
+          startDateDay = 30;
+          endDateDay = 30;
         }
-        else if (sd === 31) {
-          sd = 30;
+        else if (startDateDay === 31) {
+          startDateDay = 30;
         }
-        else if (sd === 30 && ed === 31) {
-          ed = 30;
+        else if (startDateDay === 30 && endDateDay === 31) {
+          endDateDay = 30;
         }
 
-        result = ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / 360;
+        result = ((endDateDay + endMonth * 30 + endYear * 360) - (startDateDay + startMonth * 30 + startYear * 360)) / 360;
 
         break;
       case 1: // Actual/actual
-        var ylength = 365;
-        if (sy === ey || ((sy + 1) === ey) && ((sm > em) || ((sm === em) && (sd >= ed)))) {
-          if ((sy === ey && func_methods.isLeapYear(sy)) || func_methods.feb29Between(issue, settlement) || (em === 1 && ed === 29)) {
-            ylength = 366;
+        { let yearLength = 365;
+        if (startYear === endYear || ((startYear + 1) === endYear) && ((startMonth > endMonth) || ((startMonth === endMonth) && (startDateDay >= endDateDay)))) {
+          if ((startYear === endYear && func_methods.isLeapYear(startYear)) || func_methods.feb29Between(issue, maturity) || (endMonth === 1 && endDateDay === 29)) {
+            yearLength = 366;
           }
 
-          return dayjs(settlement).diff(dayjs(issue), 'days') / ylength;
+          return dayjs(maturity).diff(dayjs(issue), 'days') / yearLength;
         }
 
-        var years = (ey - sy) + 1;
-        var days = (dayjs().set({ 'year': ey + 1, 'month': 0, 'date': 1 }) - dayjs().set({ 'year': sy, 'month': 0, 'date': 1 })) / 1000 / 60 / 60 / 24;
-        var average = days / years;
+        const years = (endYear - startYear) + 1;
+        const days = (dayjs().set({ 'year': endYear + 1, 'month': 0, 'date': 1 }).valueOf() - dayjs().set({ 'year': startYear, 'month': 0, 'date': 1 }).valueOf()) / 1000 / 60 / 60 / 24;
+        const average = days / years;
 
-        result = dayjs(settlement).diff(dayjs(issue), 'days') / average;
+        result = dayjs(maturity).diff(dayjs(issue), 'days') / average;
 
-        break;
+        break; }
       case 2: // Actual/360
-        result = dayjs(settlement).diff(dayjs(issue), 'days') / 360;
+        result = dayjs(maturity).diff(dayjs(issue), 'days') / 360;
 
         break;
       case 3: // Actual/365
-        result = dayjs(settlement).diff(dayjs(issue), 'days') / 365;
+        result = dayjs(maturity).diff(dayjs(issue), 'days') / 365;
 
         break;
       case 4: // European 30/360
-        result = ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / 360;
+        result = ((endDateDay + endMonth * 30 + endYear * 360) - (startDateDay + startMonth * 30 + startYear * 360)) / 360;
 
         break;
       }
@@ -12972,7 +12986,7 @@ const functionImplementation = {
 
       //日计数基准类型
       let basis = 0;
-      if(arguments.length == 4){
+      if(arguments.length === 4){
         basis = func_methods.getFirstValue(arguments[3]);
         if(valueIsError(basis)){
           return basis;
@@ -12985,7 +12999,7 @@ const functionImplementation = {
         basis = parseInt(basis);
       }
 
-      if(frequency != 1 && frequency != 2 && frequency != 4){
+      if(frequency !== 1 && frequency !== 2 && frequency !== 4){
         return formula.error.nm;
       }
 
@@ -12993,7 +13007,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
@@ -13013,7 +13027,7 @@ const functionImplementation = {
 
       let result;
       switch (basis) {
-      case 0: // US (NASD) 30/360
+      case 0: { // US (NASD) 30/360
         var sd = dayjs(interest).date();
         var sm = dayjs(interest).month() + 1;
         var sy = dayjs(interest).year();
@@ -13035,13 +13049,14 @@ const functionImplementation = {
         result = (ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360);
 
         break;
+      }
       case 1: // Actual/actual
       case 2: // Actual/360
       case 3: // Actual/365
         result = dayjs(settlement).diff(dayjs(interest), 'days');
 
         break;
-      case 4: // European 30/360
+      case 4: { // European 30/360
         var sd = dayjs(interest).date();
         var sm = dayjs(interest).month() + 1;
         var sy = dayjs(interest).year();
@@ -13052,6 +13067,7 @@ const functionImplementation = {
         result = (ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360);
 
         break;
+      }
       }
 
       return result;
@@ -13112,7 +13128,7 @@ const functionImplementation = {
 
       //日计数基准类型
       let basis = 0;
-      if(arguments.length == 4){
+      if(arguments.length === 4){
         basis = func_methods.getFirstValue(arguments[3]);
         if(valueIsError(basis)){
           return basis;
@@ -13125,7 +13141,7 @@ const functionImplementation = {
         basis = parseInt(basis);
       }
 
-      if(frequency != 1 && frequency != 2 && frequency != 4){
+      if(frequency !== 1 && frequency !== 2 && frequency !== 4){
         return formula.error.nm;
       }
 
@@ -13133,17 +13149,18 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
       //计算
       let result;
       switch (basis) {
-      case 0: // US (NASD) 30/360
+      case 0: { // US (NASD) 30/360
         result = 360 / frequency;
 
         break;
+      }
       case 1: // Actual/actual
         var maxCount = Math.ceil(dayjs(maturity).diff(dayjs(settlement), 'months') / (12 / frequency)) + 1;
 
@@ -13157,18 +13174,21 @@ const functionImplementation = {
         }
 
         break;
-      case 2: // Actual/360
+      case 2: { // Actual/360
         result = 360 / frequency;
 
         break;
-      case 3: // Actual/365
+      }
+      case 3: { // Actual/365
         result = 365 / frequency;
 
         break;
-      case 4: // European 30/360
+      }
+      case 4: { // European 30/360
         result = 360 / frequency;
 
         break;
+      }
       }
 
       return result;
@@ -13229,7 +13249,7 @@ const functionImplementation = {
 
       //日计数基准类型
       let basis = 0;
-      if(arguments.length == 4){
+      if(arguments.length === 4){
         basis = func_methods.getFirstValue(arguments[3]);
         if(valueIsError(basis)){
           return basis;
@@ -13242,7 +13262,7 @@ const functionImplementation = {
         basis = parseInt(basis);
       }
 
-      if(frequency != 1 && frequency != 2 && frequency != 4){
+      if(frequency !== 1 && frequency !== 2 && frequency !== 4){
         return formula.error.nm;
       }
 
@@ -13250,7 +13270,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
@@ -13270,7 +13290,7 @@ const functionImplementation = {
 
       let result;
       switch (basis) {
-      case 0: // US (NASD) 30/360
+      case 0: { // US (NASD) 30/360
         var sd = dayjs(settlement).date();
         var sm = dayjs(settlement).month() + 1;
         var sy = dayjs(settlement).year();
@@ -13292,13 +13312,14 @@ const functionImplementation = {
         result = (ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360);
 
         break;
+      }
       case 1: // Actual/actual
       case 2: // Actual/360
       case 3: // Actual/365
         result = dayjs(interest).diff(dayjs(settlement), 'days');
 
         break;
-      case 4: // European 30/360
+      case 4: { // European 30/360
         var sd = dayjs(settlement).date();
         var sm = dayjs(settlement).month() + 1;
         var sy = dayjs(settlement).year();
@@ -13309,6 +13330,7 @@ const functionImplementation = {
         result = (ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360);
 
         break;
+      }
       }
 
       return result;
@@ -13369,7 +13391,7 @@ const functionImplementation = {
 
       //日计数基准类型
       let basis = 0;
-      if(arguments.length == 4){
+      if(arguments.length === 4){
         basis = func_methods.getFirstValue(arguments[3]);
         if(valueIsError(basis)){
           return basis;
@@ -13382,7 +13404,7 @@ const functionImplementation = {
         basis = parseInt(basis);
       }
 
-      if(frequency != 1 && frequency != 2 && frequency != 4){
+      if(frequency !== 1 && frequency !== 2 && frequency !== 4){
         return formula.error.nm;
       }
 
@@ -13390,7 +13412,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
@@ -13466,7 +13488,7 @@ const functionImplementation = {
 
       //日计数基准类型
       let basis = 0;
-      if(arguments.length == 4){
+      if(arguments.length === 4){
         basis = func_methods.getFirstValue(arguments[3]);
         if(valueIsError(basis)){
           return basis;
@@ -13479,7 +13501,7 @@ const functionImplementation = {
         basis = parseInt(basis);
       }
 
-      if(frequency != 1 && frequency != 2 && frequency != 4){
+      if(frequency !== 1 && frequency !== 2 && frequency !== 4){
         return formula.error.nm;
       }
 
@@ -13487,7 +13509,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
@@ -13595,7 +13617,7 @@ const functionImplementation = {
         type = parseFloat(type);
       }
 
-      if(type != 0 && type != 1){
+      if(type !== 0 && type !== 1){
         return formula.error.nm;
       }
 
@@ -13654,14 +13676,14 @@ const functionImplementation = {
       const data_schedule = arguments[1];
       let schedule = [];
 
-      if(getObjType(data_schedule) == 'array'){
-        if(getObjType(data_schedule[0]) == 'array' && !func_methods.isDyadicArr(data_schedule)){
+      if(getObjType(data_schedule) === 'array'){
+        if(getObjType(data_schedule[0]) === 'array' && !func_methods.isDyadicArr(data_schedule)){
           return formula.error.v;
         }
 
         schedule = schedule.concat(func_methods.getDataArr(data_schedule, false));
       }
-      else if(getObjType(data_schedule) == 'object' && data_schedule.startCell != null){
+      else if(getObjType(data_schedule) === 'object' && data_schedule.startCell !== null){
         schedule = schedule.concat(func_methods.getCellDataArr(data_schedule, 'number', false));
       }
       else{
@@ -13782,7 +13804,7 @@ const functionImplementation = {
 
       //日计数基准类型
       let basis = 0;
-      if(arguments.length == 7){
+      if(arguments.length === 7){
         basis = func_methods.getFirstValue(arguments[6]);
         if(valueIsError(basis)){
           return basis;
@@ -13803,7 +13825,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(frequency != 1 && frequency != 2 && frequency != 4){
+      if(frequency !== 1 && frequency !== 2 && frequency !== 4){
         return formula.error.nm;
       }
 
@@ -13811,7 +13833,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
@@ -13924,7 +13946,7 @@ const functionImplementation = {
 
       //日计数基准类型
       let basis = 0;
-      if(arguments.length == 5){
+      if(arguments.length === 5){
         basis = func_methods.getFirstValue(arguments[4]);
         if(valueIsError(basis)){
           return basis;
@@ -13945,7 +13967,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(dayjs(settlement) - dayjs(maturity) >= 0){
+      if(dayjs(settlement).isSameOrAfter(dayjs(maturity))){
         return formula.error.nm;
       }
 
@@ -14031,14 +14053,14 @@ const functionImplementation = {
       const data_values = arguments[0];
       let values = [];
 
-      if(getObjType(data_values) == 'array'){
-        if(getObjType(data_values[0]) == 'array' && !func_methods.isDyadicArr(data_values)){
+      if(getObjType(data_values) === 'array'){
+        if(getObjType(data_values[0]) === 'array' && !func_methods.isDyadicArr(data_values)){
           return formula.error.v;
         }
 
         values = values.concat(func_methods.getDataArr(data_values, false));
       }
-      else if(getObjType(data_values) == 'object' && data_values.startCell != null){
+      else if(getObjType(data_values) === 'object' && data_values.startCell !== null){
         values = values.concat(func_methods.getCellDataArr(data_values, 'number', false));
       }
       else{
@@ -14071,7 +14093,7 @@ const functionImplementation = {
 
       //对内部回报率的估算值
       let guess = 0.1;
-      if(arguments.length == 3){
+      if(arguments.length === 3){
         guess = func_methods.getFirstValue(arguments[2]);
         if(valueIsError(guess)){
           return guess;
@@ -14104,7 +14126,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(values_n.length != dates.length){
+      if(values_n.length !== dates.length){
         return formula.error.nm;
       }
 
@@ -14175,14 +14197,14 @@ const functionImplementation = {
       const data_values = arguments[0];
       let values = [];
 
-      if(getObjType(data_values) == 'array'){
-        if(getObjType(data_values[0]) == 'array' && !func_methods.isDyadicArr(data_values)){
+      if(getObjType(data_values) === 'array'){
+        if(getObjType(data_values[0]) === 'array' && !func_methods.isDyadicArr(data_values)){
           return formula.error.v;
         }
 
         values = values.concat(func_methods.getDataArr(data_values, false));
       }
-      else if(getObjType(data_values) == 'object' && data_values.startCell != null){
+      else if(getObjType(data_values) === 'object' && data_values.startCell !== null){
         values = values.concat(func_methods.getCellDataArr(data_values, 'number', false));
       }
       else{
@@ -14239,7 +14261,7 @@ const functionImplementation = {
         }
       }
 
-      if(payments.length == 0 || incomes.length == 0){
+      if(payments.length === 0 || incomes.length === 0){
         return formula.error.d;
       }
 
@@ -14274,14 +14296,14 @@ const functionImplementation = {
       const data_values = arguments[0];
       let values = [];
 
-      if(getObjType(data_values) == 'array'){
-        if(getObjType(data_values[0]) == 'array' && !func_methods.isDyadicArr(data_values)){
+      if(getObjType(data_values) === 'array'){
+        if(getObjType(data_values[0]) === 'array' && !func_methods.isDyadicArr(data_values)){
           return formula.error.v;
         }
 
         values = values.concat(func_methods.getDataArr(data_values, false));
       }
-      else if(getObjType(data_values) == 'object' && data_values.startCell != null){
+      else if(getObjType(data_values) === 'object' && data_values.startCell !== null){
         values = values.concat(func_methods.getCellDataArr(data_values, 'number', true));
       }
       else{
@@ -14302,7 +14324,7 @@ const functionImplementation = {
 
       //对内部回报率的估算值
       let guess = 0.1;
-      if(arguments.length == 2){
+      if(arguments.length === 2){
         guess = func_methods.getFirstValue(arguments[1]);
         if(valueIsError(guess)){
           return guess;
@@ -14418,14 +14440,14 @@ const functionImplementation = {
       for(var i = 1; i < arguments.length; i++){
         const data = arguments[i];
 
-        if(getObjType(data) == 'array'){
-          if(getObjType(data[0]) == 'array' && !func_methods.isDyadicArr(data)){
+        if(getObjType(data) === 'array'){
+          if(getObjType(data[0]) === 'array' && !func_methods.isDyadicArr(data)){
             return formula.error.v;
           }
 
           values = values.concat(func_methods.getDataArr(data, true));
         }
-        else if(getObjType(data) == 'object' && data.startCell != null){
+        else if(getObjType(data) === 'object' && data.startCell !== null){
           values = values.concat(func_methods.getCellDataArr(data, 'number', true));
         }
         else{
@@ -14492,14 +14514,14 @@ const functionImplementation = {
       const data_values = arguments[1];
       let values = [];
 
-      if(getObjType(data_values) == 'array'){
-        if(getObjType(data_values[0]) == 'array' && !func_methods.isDyadicArr(data_values)){
+      if(getObjType(data_values) === 'array'){
+        if(getObjType(data_values[0]) === 'array' && !func_methods.isDyadicArr(data_values)){
           return formula.error.v;
         }
 
         values = values.concat(func_methods.getDataArr(data_values, false));
       }
-      else if(getObjType(data_values) == 'object' && data_values.startCell != null){
+      else if(getObjType(data_values) === 'object' && data_values.startCell !== null){
         values = values.concat(func_methods.getCellDataArr(data_values, 'number', false));
       }
       else{
@@ -14644,7 +14666,7 @@ const functionImplementation = {
         return formula.error.nm;
       }
 
-      if(type != 0 && type != 1){
+      if(type !== 0 && type !== 1){
         return formula.error.nm;
       }
 
@@ -14747,7 +14769,7 @@ const functionImplementation = {
 
       //指定各期的付款时间是在期初还是期末
       let type = 0;
-      if(arguments.length == 5){
+      if(arguments.length === 5){
         type = func_methods.getFirstValue(arguments[4]);
         if(valueIsError(type)){
           return type;
@@ -14760,7 +14782,7 @@ const functionImplementation = {
         type = parseFloat(type);
       }
 
-      if(type != 0 && type != 1){
+      if(type !== 0 && type !== 1){
         return formula.error.nm;
       }
 

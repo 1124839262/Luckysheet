@@ -573,7 +573,7 @@ function luckysheetDrawMain(
       if (Store.flowdata[r] != null && Store.flowdata[r][c] != null) {
         const value = Store.flowdata[r][c];
 
-        if (getObjType(value) == 'object' && 'mc' in value) {
+        if (getObjType(value) == 'object' && 'mc' in value && value['mc']) {
           borderOffset[`${r  }_${  c}`] = {
             start_r: start_r,
             start_c: start_c,
